@@ -3,7 +3,7 @@ package Lingua::Han2PinYin;
 use strict;
 use vars qw($VERSION @ISA @EXPORT);
 use Exporter;
-$VERSION = '0.04';
+$VERSION = '0.05';
 @ISA = qw(Exporter);
 @EXPORT = qw(han2pinyin);
 
