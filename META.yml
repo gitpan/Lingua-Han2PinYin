@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Lingua-Han2PinYin
-version: 0.01
+version: 0.02
 author:
   - Fayland, fayland@gmail.com
 abstract: |-
@@ -9,5 +9,5 @@ license: perl
 provides:
   Lingua::Han2PinYin:
     file: lib/Lingua/Han2PinYin.pm
-    version: 0.01
+    version: 0.02
 generated_by: Module::Build version 0.2606

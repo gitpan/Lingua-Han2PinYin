@@ -1,6 +1,7 @@
 use Cwd;
 use File::Spec;
-unless ( eval "use Module::Build::Compat 0.2; 1" ) {
+eval "use Module::Build::Compat 0.02;";
+if ($@) {
 	require ExtUtils::MakeMaker;
 	print "This module require Module::Build to install itself.\n";
 	my $yn = ExtUtils::MakeMaker::prompt
