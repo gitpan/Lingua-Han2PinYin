@@ -1,15 +1,10 @@
---- #YAML:1.0
-name: Lingua-Han2PinYin
-version: 0.03
-author:
-  - Fayland, fayland@gmail.com
-abstract: convert Chinese character to its pinyin.
-license: perl
-provides:
-  Lingua::Han2PinYin:
-    file: lib/Lingua/Han2PinYin.pm
-    version: 0.03
-  Lingua::Han2PinYin::Light:
-    file: lib/Lingua/Han2PinYin/Light.pm
-    version: 0.01
-generated_by: Module::Build version 0.2606
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Lingua-Han2PinYin
+version:      0.04
+version_from: lib/Lingua/Han2PinYin.pm
+installdirs:  site
+requires:
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.21

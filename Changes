@@ -1,0 +1,6 @@
+Revision history for Perl extension Lingua::Han2PinYin.
+
+0.04  Wed Dec 29 18:53:15 2004
+	- original version; created by h2xs 1.23 with options
+		-AX -n Lingua::Han2PinYin
+

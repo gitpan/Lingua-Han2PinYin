@@ -1,25 +1,12 @@
-use Cwd;
-use File::Spec;
-eval "use Module::Build::Compat 0.02;";
-if ($@) {
-	require ExtUtils::MakeMaker;
-	print "This module require Module::Build to install itself.\n";
-	my $yn = ExtUtils::MakeMaker::prompt
-              ( '  Install Module::Build from CPAN', 'y' );
-	if ($yn =~ /^y(es)?/i) {
-		# save this cause CPAN will chdir all over the place.
-		my $cwd = cwd();
-		my $makefile = File::Spec->rel2abs($0);
-		require CPAN;
-		CPAN->install('Module::Build');
-		chdir $cwd
-			or die "Cannot chdir to $cwd: $!";
-		exec( $^X, $makefile, @ARGV )
-	} else {
-		warn 'Cannot install this module ' ,
-			"without Module::Build.  Exiting ...\n";
-		exit 0;
-	}
-}
-Module::Build::Compat->run_build_pl( args => \@ARGV );
-Module::Build::Compat->write_makefile;
+use 5.008004;
+use ExtUtils::MakeMaker;
+# See lib/ExtUtils/MakeMaker.pm for details of how to influence
+# the contents of the Makefile that is written.
+WriteMakefile(
+    NAME              => 'Lingua::Han2PinYin',
+    VERSION_FROM      => 'lib/Lingua/Han2PinYin.pm', # finds $VERSION
+    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
+      (ABSTRACT_FROM  => 'lib/Lingua/Han2PinYin.pm', # retrieve abstract from module
+       AUTHOR         => 'fayland <fayland@gmail.com>') : ()),
+);

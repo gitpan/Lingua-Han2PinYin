@@ -1,6 +1,7 @@
-Build.PL
-lib/Lingua/Han2PinYin.pm
-lib/Lingua/Han2PinYin/Light.pm
+Changes
 Makefile.PL
-MANIFEST			This list of files
-META.yml
+MANIFEST
+README
+t/Lingua-Han2PinYin.t
+lib/Lingua/Han2PinYin.pm
+META.yml                                 Module meta-data (added by MakeMaker)
