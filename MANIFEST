@@ -2,6 +2,9 @@ Changes
 Makefile.PL
 MANIFEST
 README
-t/Lingua-Han2PinYin.t
+t/1-gb2312.t
+t/2-utf8.t
 lib/Lingua/Han2PinYin.pm
+lib/Lingua/Han2PinYin/PinYin_gb2312.txt
+lib/Lingua/Han2PinYin/PinYin_utf8.txt
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -1,512 +1,35 @@
 package Lingua::Han2PinYin;
 
 use strict;
-use vars qw($VERSION @ISA @EXPORT);
-use Exporter;
-$VERSION = '0.05';
-@ISA = qw(Exporter);
-@EXPORT = qw(han2pinyin);
+use vars qw($VERSION);
+$VERSION = '0.06';
 
-my %py = (
-	a => ',b0a1,b0a2,bac7,dfb9,e0c4,ebe7,efb9,',
-	ai => ',b0ae,b0ab,b0a4,b0a5,b0ad,b0a9,b0ac,b0a6,b0a7,b0aa,b0af,b0a3,b0a8,b4f4,e0c9,e6c8,e8a8,ead3,dedf,edc1,e0c8,efcd,f6b0,c4cb,f9d8,a5df,e0e6,b9c6,bad2,d1c2,',
-	an => ',b0b4,b0b2,b0b5,b0b6,b0b3,b0b8,b0b0,b0b1,b0b7,b3a7,b9e3,e2d6,deee,e1ed,efa7,e8f1,dacf,f0c6,dbfb,f7f6,b8c9,a1ab,bad0,c7af,f1fc,',
-	ang => ',b0ba,b0b9,b0bb,d1f6,',
-	ao => ',b0c0,b0bc,b0c1,b0c2,b0be,b0c3,b0bd,b0bf,b0c4,cff9,ded6,e6c1,e2da,e6f1,e0bb,dbea,e5db,f1fa,f2fc,e9e1,f6cb,f7a1,f7e9,e1ae,f5e0,b9f7,bdbd,',
-	ba => ',b0d1,b0cb,b0c9,b0d6,b0ce,b0d5,b0cf,b0cd,b0c5,b0c7,b0d3,b0d4,b0c8,b0d0,b0ca,b0cc,b0d2,b0c6,f4ce,dcd8,e1b1,f6d1,eed9,f7c9,ddc3,e5b1,b2ae,dee3,e8cb,f1c5,e3ab,ddc9,',
-	bai => ',b0d9,b0d7,b0da,b0dc,b0d8,b0dd,b0db,b2ae,b0de,dee3,dfc2,eafe,dfb0,c5c5,e0c5,c9aa,deb5,f7b9,',
-	ban => ',b0eb,b0ec,b0e0,b0e3,b0e8,b0e1,b0e6,b0df,b0e5,b0e9,b0e2,b0e7,b0ea,b0e4,b0ed,f1ad,dbe0,eed3,f4b2,dae6,f1a3,b7d6,eab1,b0ad,e1d9,b1e6,b1e7,',
-	bang => ',b0ef,b0f4,b0f3,b0f5,b0f7,b0ee,b0f1,b0f6,b0f8,b0f0,b0f2,b0f9,e4ba,ddf2,cdc5,c5d4,a5ab,b7c4,f3a6,',
-	bao => ',b0fc,b1a7,b1a8,b1a5,b1a3,b1a9,b1a1,b1a6,b1ac,b0fe,b1aa,c5d9,b1a2,b0fd,b1a4,b0fa,b0fb,b1ab,c5da,c6d9,f6b5,e6df,ecd2,f1d9,f0b1,f5c0,dde1,d9e8,f4b4,a2ab,b2be,c5db,d9f6,e5b2,',
-	be => ',',
-	bei => ',b1bb,b1b1,b1b6,b1ad,b1b3,b1af,b1b8,b1ae,b1b0,b1b4,b1b2,b1b5,b1ba,b1b7,b1b9,b1db,f1d8,e3a3,dded,f0c7,f6cd,dfc2,dafd,f7b9,d8c3,dae9,edd5,d9c2,a2db,fde2,c0b2,cdaa,c6d0,ddc9,c6cf,f2e3,b0cf,',
-	ben => ',b1be,b1bc,b1bd,b1bf,babb,efbc,eada,dbce,dbd0,cce5,c4aa,',
-	beng => ',b1c4,b1c1,b1c2,b1c0,b1c5,b0f6,b1c3,eab4,e0d4,c8d9,bab0,f5df,c8dc,d0c6,bdc5,c5d4,b0f1,d4ac,',
-	bi => ',b1c8,b1ca,b1d5,b1c7,b1cc,b1d8,b1dc,b1c6,b1cf,b1db,b1cb,b1c9,b1da,b1cd,b1d2,b1d7,b1d9,b1ce,b1d0,b1d3,b1d6,b1dd,b1d1,b1d4,c3d8,c3da,eff5,deb5,dda9,dcc5,ddc9,d8b0,f1d4,eeaf,d9c2,e6d4,e1f9,f3d9,f3eb,f3f7,f4b0,dcea,f4c5,e2d8,eee9,f5cf,dfc1,e3b9,eada,e4e4,e5a8,e8b5,dfd9,f7c2,e5f6,e5fe,e6be,d8f2,d8b7,f6b1,dbfd,e3b8,cbe6,b7f9,c6e2,cfb7,f7de,e8b7,e8c1,e9e9,dee9,b2a8,ceaa,c6b3,e7a2,c6a2,c2c7,b1bb,b7d1,f5cb,f6cd,dae9,daf0,f0a5,',
-	bia => ',f7d4,',
-	bian => ',b1df,b1e4,b1e3,b1e9,b1e0,b1e7,b1e2,b1e1,b1de,b1e5,b1e6,b1e8,e2ed,edbe,d8d2,e3ea,eddc,f2f9,f1db,f6fd,f3d6,dcd0,f1b9,dbcd,e7c2,ecd4,e4b7,ded5,a4aa,f0a1,f7d4,',
-	biao => ',b1ed,b1ea,b1eb,b1ec,e8bc,e6bb,eca9,ecad,f7a7,f1a6,ecae,eff0,f1d1,e6f4,efda,d8e2,e6ce,fdc6,ece1,b0fa,f7e9,f7d4,',
-	bie => ',b1f0,b1ef,b1ee,b1f1,f5bf,d6b0,c7b0,ceb0,c5c6,c4aa,c3d8,b1ce,',
-	bin => ',b1f6,b1f4,b1f7,b1f2,b1f3,b1f5,e1d9,ebf7,e9eb,e7cd,f7c6,d9cf,e9c4,f7de,efd9,e7e3,b7dd,f1e4,c6b5,',
-	bing => ',b2a2,b2a1,b1f8,b1f9,b1fb,b1fd,c6c1,b1fc,b1fa,b1fe,def0,e9c4,d9f7,dafb,ecd9,c6bd,c6b4,e8ca,ecde,e7ae,f0da,',
-	bo => ',b2a6,b2a8,b2a5,b2b4,b2a9,b2ae,b2b5,b2a3,b0fe,b1a1,b2aa,b2a4,b2a7,b2ab,b2b1,b2af,b0e3,b0d8,b2b0,b2b3,b2ac,b2ad,b2b2,c6c7,b2b7,ede7,f5cb,e9de,d9f1,f0be,f5db,e0a3,deac,f4a4,eee0,e2c4,eba2,b7f0,c4bc,d8c3,b0c5,c5c5,c4b0,dcdf,a8b1,a9b7,c6c3,c5cb,c6d9,b9b1,feaa,b7ac,b0d7,b0d9,b2be,e5f5,c6d0,c6d1,deb5,dec1,f5c0,c5dc,f6d1,eafe,',
-	bu => ',b2bb,b2bd,b2b9,b2bc,b2bf,b2b6,b2b7,b2be,b2b8,b1a4,b2ba,b2c0,c6d2,eab3,e5cd,eace,eedf,eed0,f5b3,dfb2,ded4,e4df,b1a1,b8bd,f7b9,',
-	ca => ',b2c1,b2f0,ede5,e0ea,b2cc,',
-	cai => ',b2c5,b2cb,b2c9,b2c4,b2c6,b2c3,b2c2,b2c8,b2c7,b2cc,b2ca,',
-	can => ',b2cf,b2d0,b2f4,b2ce,b2d2,b2d1,b2cd,b2d3,e6ee,e8b2,e5ee,f7f5,f4d3,',
-	cang => ',b2d8,b2d6,b2d7,b2d5,b2d4,d8f7,eab0,',
-	cao => ',b2dd,b2d9,b2dc,b2db,b2da,e0d0,f4bd,f3a9,e4ee,f3e5,f9d4,e8c3,dcb3,d4ec,',
-	ce => ',b2e1,b2e0,b2df,b2e2,b2de,e2fc,a8e0,c5d5,c9e2,d8d6,',
-	cen => ',b2ce,e1af,e4b9,',
-	ceng => ',d4f8,b2e3,b2e4,e0e1,c9ae,d4f6,e7d5,',
-	ceok => ',',
-	ceom => ',',
-	ceon => ',',
-	ceor => ',',
-	cha => ',b2e9,b2e5,b2e6,b2e8,b2ee,b2ed,b2eb,b2ec,b2e7,b2ea,c9b2,b2ef,e9ab,e9b6,efef,f1c3,e3e2,e2c7,e9df,e6b1,e8be,efca,e0ea,e2cd,bcbd,ddbd,d0b1,e2aa,dcda,ddb1,eece,d4fb,',
-	chai => ',b2f1,b2f0,b2ee,b2f2,eece,f0fb,f2b2,d9ad,d0b2,b4ea,b2e9,e5b5,dceb,f6b7,',
-	chan => ',b2fa,b2f8,b2f4,b2f3,b2fb,b2fc,b2f9,b2f7,b2f5,b5a5,b2f6,eae8,e6bf,dddb,dac6,d9e6,e2dc,e5ee,f3b8,e5f1,efe2,e2e3,e4fd,ecf8,e6f6,f5f0,e5a4,b7cd,c0e5,c8e6,d3d5,d4b5,b4d5,babd,edaa,d5cd,c9bb,f1cf,dadf,',
-	chang => ',b3a4,b3aa,b3a3,b3a1,b3a7,b3a2,b3a6,b3a9,b2fd,b3a8,b3ab,b3a5,b2fe,c9d1,f6f0,eba9,ddc5,e3ae,e6cf,e1e4,dbcb,e3d1,e2ea,d8f6,eac6,dcc9,e6bd,ccc8,acc9,c7cc,',
-	chao => ',b3af,b3ad,b3ac,b3b3,b3b1,b3b2,b3b4,b3b0,bdcb,b4c2,b3ae,e2f7,eccc,f1e9,eacb,e0df,f9cc,e7a7,c9dc,d6df,',
-	che => ',b3b5,b3b7,b3b6,b3b8,b3b9,b3df,b3ba,dbe5,edba,c3b6,d5ac,e5f8,ddb3,e2b3,',
-	chen => ',b3c3,b3c6,b3bd,b3bc,b3be,b3bf,b3c1,b3c2,b3c4,b3c8,b3c0,b3bb,e9b4,ded3,dac8,edd7,dadf,e5b7,f6b3,e0c1,d8f7,e8a1,b8bf,ccee,f6c1,e6d5,c2c9,f2d5,d5ee,edf1,e7c7,ebc0,ebcf,b4b3,b3d3,',
-	cheng => ',b3c9,b3cb,caa2,b3c5,b3c6,b3c7,b3cc,b3ca,b3cf,b3cd,b3d1,b3d2,b3ce,b3c8,b3d0,ebf3,e8df,dbf4,eef1,e0e1,eef5,f5a8,eac9,f1ce,e8c7,f2c9,d8a9,eeaa,d8f6,bebb,c7ba,e1d3,d5e1,cdc7,d5b3,e9cc,e4a5,aaab,b6a2,cccb,b1c4,dbab,d0d1,b3d3,',
-	chi => ',b3d4,b3df,b3d9,b3d8,b3e1,b3d5,b3e0,b3dd,b3dc,b3d6,b3e2,b3de,b3da,b3db,b3e3,b3d7,f5d8,dbe6,dcdd,dcaf,e2c1,e6ca,f4f9,f1dd,ebb7,dfea,f1a1,f2bf,e0b4,f0b7,edf7,f3a4,f3f8,f7ce,dfb3,e1dc,f3d7,e0cd,d9d1,eab6,dfd0,a5cf,cbfd,cca7,b2f0,cdcf,bbcc,e1de,abe8,fde3,d6ce,d6cd,f4ae,edf4,c0eb,d2c6,ebd5,dcce,b2e7,c0f2,c9df,f5bd,cace,e6ea,dbad,',
-	chong => ',b3e5,d6d8,b3e6,b3e4,b3e8,b3e7,d3bf,d6d6,f4be,e2e7,f4a9,efa5,e3bf,dcfb,f2d9,e4fc,d6f2,d6d1,bceb,cdaa,',
-	chou => ',b3e9,b3ee,b3f4,b3f0,b3f3,b3ed,b3f1,b3ea,b3ef,b3ec,b3eb,b3f2,e3b0,d9b1,e0fc,f1ac,f6c5,dbda,e6a8,c0c5,f4de,e4e5,e2ae,d6df,c5a5,f6d6,',
-	chu => ',b3f6,b4a6,b3f5,b3fa,b3fd,b4a5,b3f7,b3fe,b4a1,b4a2,d0f3,b3fc,b4a3,b4a4,b3f9,b3f8,b3fb,e8fa,e8c6,dbbb,e2f0,e7a9,d8a1,e3c0,f5e9,f7ed,f2dc,e9cb,d6fa,dfc4,cdbf,cae7,cbac,c1f2,d7a3,d0f5,d6f8,f1d2,dab0,d6ee,e5f8,',
-	chua => ',b4e9,',
-	chuai => ',b4a7,ebfa,e0a8,e0dc,def5,f5df,',
-	chuan => ',b4a9,b4ac,b4ab,b4ae,b4a8,b4ad,b4aa,ebb0,e5d7,eecb,f4ad,e2b6,e7dd,e3b7,def2,f6aa,f5df,efe9,',
-	chuang => ',b4b0,b4b2,b4b3,b4b4,b4af,b4b1,e2eb,b2d6,e8b4,a7af,f4a9,b4d0,',
-	chui => ',b4b5,b4b9,b4b6,b4b8,b4b7,d7b5,e9b3,e9a2,daef,fbb9,',
-	chun => ',b4ba,b4bd,b4bf,b4c0,b4bc,b4be,b4bb,f2ed,ddbb,f0c8,abeb,e3e7,c6ac,ebc6,e9fa,',
-	chuo => ',b4c1,b4c2,f5d6,e0a8,f6ba,eaa1,b4d9,f3ed,edc4,d7ec,ccb4,b4d8,d7ba,dcf5,ddfd,f5c0,f5e2,b3f9,e5c1,c8a9,efdf,',
-	ci => ',b4ce,b4cb,b4ca,b4c9,b4c8,b4c6,b4c5,b4c7,b4cc,b4c4,cbc5,b4c3,b4cd,b2ee,d7c8,dfda,f0cb,ecf4,f4d9,b2de,cbbe,e3e1,fab4,b2b2,d7cc,f4d2,dceb,dcf9,f2ba,f3a3,f4f4,',
-	cis => ',',
-	cong => ',b4d3,b4d4,b4d0,b4d2,b4cf,b4d1,e7fd,e8c8,e4c8,e8ae,e6f5,dcca,d9cc,b4b0,d7dd,',
-	cou => ',b4d5,e9a8,eaa3,ebed,d7e0,d7e1,d7e5,b4d8,ddfd,deb4,c7f7,c8a4,',
-	cu => ',b4d6,b4d7,b4d8,b4d9,d7e4,e1de,e2a7,ddfd,f5be,f5a1,e9e3,f5ed,c7d2,c6dd,dbaf,e7a7,c7f7,c8a4,b4ed,',
-	cuan => ',b4dc,b4da,b4db,d4dc,d9e0,ece0,efe9,dfa5,eabf,e4b7,',
-	cui => ',b4df,b4e0,b4dd,b4e4,b4de,b4e3,cba5,b4e1,b4e2,e8ad,dffd,e3b2,ddcd,eba5,e9c1,bacc,b2ec,d5aa,f6bf,',
-	cun => ',b4e5,b4e7,b4e6,b6d7,e2e2,f1e5,bfa3,b4b8,',
-	cuo => ',b4ed,b4e9,b4ea,b4ec,b4eb,b4e8,e1cf,d8c8,f5ba,ebe2,f0ee,f5e3,f0fb,efb1,eff3,f3b4,ddce,f4d7,f5f2,',
-	da => ',b4f3,b4f0,b4ef,b4f2,b4ee,b4f1,cbfe,f3ce,dec7,dfd5,f1d7,f0e3,e2f2,f7b0,e6a7,edb3,e0aa,f7b2,cbfa,b5a8,b5fc,',
-	dai => ',b4f8,b4fa,b4f4,b4f7,b4fd,b4fc,b4fe,b4f5,b4fb,b5a1,b4f6,b4f3,b4f9,dfbe,e7e9,e5ca,e1b7,dfb0,f7ec,e6e6,e7aa,dca4,b1e9,a6b6,dab1,e5d6,c1a5,cdd4,',
-	dan => ',b5ab,b5a5,b5b0,b5a3,b5af,b5a7,b5a8,b5ad,b5a4,b5a2,b5a9,b5aa,b5ae,b5a6,b5ac,caaf,f0e3,e5a3,f0f7,ddcc,e9e9,edf1,f1f5,f3ec,eae6,d9d9,e0a2,d1c8,b7cc,b3c0,e2f2,bab6,bde9,d5bf,ccb6,e5a4,fdab,ebfe,d1d1,eae8,d5b2,c9c4,dae0,d8e9,',
-	dang => ',b5b1,b5b3,b5b2,b5b5,b5b4,dad4,eef5,e5b4,ddd0,dbca,f1c9,edb8,b3a1,aacc,',
-	dao => ',b5bd,b5c0,b5b9,b5b6,b5ba,b5c1,b5be,b5b7,b5bf,b5bc,b5b8,b5bb,e0fc,f4ee,e2e1,ece2,ebae,dfb6,d9b1,cadc,dffa,ceec,fde3,e4ac,ccce,ccd5,c4f1,d8d6,',
-	de => ',b5c4,b5d8,b5c3,b5c2,b5d7,efbd,fab5,c7e5,daec,',
-	dei => ',b5c3,',
-	dem => ',',
-	den => ',',
-	deng => ',b5c8,b5c6,b5cb,b5c7,b3ce,b5c9,b5ca,b5c5,ede3,efeb,e0e2,e1d8,eaad,f4a3,b3c8,f4ad,',
-	di => ',b5d8,b5da,b5d7,b5cd,b5d0,b5d6,b5ce,b5db,b5dd,b5d5,b5dc,b5de,b5cc,b5c4,b5d3,cce1,b5d1,b5cf,b5d2,b5d4,b5d9,eaeb,dba1,dad0,daae,e0d6,e8dc,f7be,f4c6,d8b5,e9a6,edfb,e6b7,ddb6,edda,efe1,dbe6,d9e1,edc6,c9d7,ace0,e8bc,b9ab,d4bc,ebd5,c9d6,ddaf,cce3,d6f0,b4fe,c1a5,cce2,',
-	dia => ',e0c7,',
-	dian => ',b5e3,b5e7,b5ea,b5ee,b5ed,b5e0,b5df,b5e6,b5e2,b5eb,b5ec,b5e4,b5e8,b5e5,b5e1,b5e9,f5da,eee4,dbe3,dae7,f1b2,f4a1,e7e8,e1db,f1b0,dbfe,fac4,d5b4,cfd1,d5ac,f2d1,d8bc,',
-	diao => ',b5f4,b5f6,b5f0,b5f5,b5f1,b5f7,b5f3,b5ef,b5f2,c4f1,eef6,efa2,f6f4,f5f5,aed9,acd9,c3b5,ccf4,b3ed,f4d0,b3f1,ddaf,f2e8,d5d4,ccf8,f5d6,e9f7,e6f4,',
-	die => ',b5f9,b5f8,b5fe,b5fa,b5fb,b5fc,b5fd,ebba,dca6,f0ac,dee9,f5de,f1f3,f6f8,dbec,e0a9,d8fd,c9e6,e4cd,d6cf,d6c1,f1de,ccdf,e9f3,f7a3,f5da,',
-	dim => ',',
-	ding => ',b6a5,b6a8,b6a2,b6a9,b6a3,b6a1,b6a4,b6a6,b6a7,eeae,e7e0,eefa,ebeb,edd6,f0db,d8ea,f1f4,f4fa,e0a4,b5ec,c5cd,ecb5,c6ae,dde3,',
-	diu => ',b6aa,eefb,',
-	dong => ',b6af,b6ab,b6ae,b6b4,b6b3,b6ac,b6ad,b6b0,b6b1,b6b2,e1bc,f0b4,dbed,ebcb,ebd8,edcf,ebb1,e1b4,dfcb,cda9,fcaa,f0ae,cdb2,cdaa,e2ba,',
-	dou => ',b6bc,b6b7,b6b9,b6ba,b6b8,b6b6,b6bb,b6b5,b6c1,f2bd,f1bc,f3fb,ddfa,cdb6,c3e4,f1be,d3e2,f5a2,eed7,',
-	du => ',b6c1,b6c8,b6be,b6c9,b6c2,b6c0,b6c7,b6c6,b6c4,b6c3,b6c5,b6bd,b6bc,b6bf,b6ca,b6d9,f3bc,f3c6,e0bd,e4c2,e8fc,ebb9,f7f2,f7c7,dcb6,cdc1,f3d5,d0e9,d9aa,f3c3,f4ee,b2ef,d5e0,',
-	duan => ',b6ce,b6cc,b6cf,b6cb,b6cd,b6d0,e9b2,ecd1,f3fd,e5e8,acac,f5df,',
-	dui => ',b6d4,b6d3,b6d1,b6d2,b6d8,efe6,edd4,eda1,edad,b6e1,d7b7,c8f1,',
-	dul => ',',
-	dun => ',b6d6,b6d9,b6d7,b6d5,b6d8,b6db,b6dc,b6da,b6dd,b2bb,f5bb,e3e7,edef,efe6,ede2,ecc0,edbb,afbf,d4aa,ebe0,',
-	duo => ',b6e0,b6e4,b6e1,b6e6,b6e7,b6e2,b6e5,b6e8,b6e9,b6de,b6df,cdd4,b6c8,b6e3,f5e2,e3f5,dfcd,eeec,f1d6,dfe1,e7b6,b6b6,b4b7,b4a7,d4d3,e8de,fae9,e3fb,c9af,b5a6,d5e0,cdd3,cbe5,',
-	e => ',b6f6,c5b6,b6ee,b6ec,b6ea,b6f3,b6ed,b6ef,b0a2,b6f4,b6eb,b6f0,b6f1,b6f2,b6f5,efb0,dacc,dbd1,efc9,e3d5,dde0,dcc3,e9ee,e6b9,ddad,f6f9,f2a6,ebf1,e3b5,dfc0,d8ac,f0ca,e5ed,d1c7,ceb1,e0d9,d1c6,b0a1,dffd,eadb,ace2,eac2,b4f5,edd2,b0b7,d2d8,b0af,d8aa,',
-	en => ',b6f7,def4,ddec,e0c5,b8f0,dfed,',
-	eng => ',',
-	eo => ',',
-	eol => ',',
-	eom => ',',
-	eos => ',',
-	er => ',b6f8,b6fe,b6fa,b6f9,b6fc,b6fb,b7a1,b6fd,e7ed,f6dc,f0b9,d9a6,e5c7,eeef,e5a6,',
-	fa => ',b7a2,b7a8,b7a3,b7a5,b7a6,b7a4,b7a7,b7a9,dbd2,edc0,b0ce,b2a6,b7ba,b1e1,',
-	fan => ',b7b4,b7b9,b7ad,b7ac,b7b8,b7b2,b7ab,b7b5,b7ba,b7b1,b7b3,b7b7,b7b6,b7ae,b7aa,b7af,b7b0,ecdc,dec0,eeb2,deac,f5ec,e8f3,e1a6,ded5,edad,f3b4,f1c8,ebb6,e1eb,',
-	fang => ',b7c5,b7bf,b7c0,b7c4,b7bc,b7bd,b7c3,b7c2,b7bb,b7c1,b7be,eed5,e1dd,dafa,e8ca,f4b3,f6d0,d8ce,b0ad,',
-	fei => ',b7c7,b7c9,b7ca,b7d1,b7ce,b7cf,b7cb,b7cd,b7d0,b7c6,b7cc,b7c8,f3f5,f2e3,ebe8,ece9,e5fa,ecb3,e1f4,dcc0,e3ad,efd0,f6ad,f4e4,e9bc,e4c7,f6ee,e7b3,f0f2,e2f6,b7f7,e9aa,edc9,ecf0,e7a8,dcd8,c5e1,',
-	fen => ',b7d6,b7dd,b7d2,b7db,b7d8,b7dc,b7df,b7d7,b7de,b7e0,b7d3,b7d9,b7d4,b7d5,b7da,e8fb,e5af,f6f7,e7e3,d9c7,f7f7,b7cb,c5e7,b1bc,edaa,b0e7,ded5,feec,dcaa,c5ce,eada,b0e4,',
-	feng => ',b7e7,b7e2,b7ea,b7ec,b7e4,b7e1,b7e3,b7e8,b7eb,b7ee,b7ed,b7ef,b7e5,b7e6,b7e9,edbf,d9ba,dbba,ddd7,e3e3,dff4,b8c5,b7ba,c8aa,b0f6,e5cc,c5f4,',
-	fo => ',b7f0,',
-	fou => ',b7f1,f3be,b2bb,e4bc,',
-	fu => ',b8b1,b7f9,b7f6,b8a1,b8bb,b8a3,b8ba,b7fc,b8b6,b8b4,b7fe,b8bd,b8a9,b8ab,b8b0,b8bf,b7f7,b7f2,b8b8,b7fb,b7f5,b7f3,b8b3,b8a8,b8ae,b8af,b8b9,b8be,b8a7,b8b2,b7f8,b7f4,b7fa,b7f0,b7fd,b8b5,b8bc,b8a5,b8a2,b8a4,cad0,b8a6,b8aa,b8ac,b8ad,b8b7,b8c0,edeb,edc9,dcde,f5c3,f5c6,f2b6,dcc0,f6d6,e1a5,dcf2,e4e6,f2dd,ded4,ddca,f2f0,f6fb,f2f3,e7a6,e7a8,eae7,eeb7,effb,d9eb,f4ef,d9ec,e8f5,ddb3,e6da,f0a5,e6e2,e2f6,ecf0,dfbb,dbae,dcbd,e5f5,edea,b2bb,bdf6,b0fc,dfbc,b2b8,d1e5,e1dc,cdbb,d1de,b7d0,e4df,c6ce,b7d1,bbb9,efc2,dae2,f7b9,',
-	ga => ',b8c1,b8ec,bcd0,b8c2,bfa7,d4fe,eec5,d9a4,eab8,dece,e6d8,e6d9,dfc8,',
-	gad => ',',
-	gai => ',b8c3,b8c4,b8c7,b8c5,b8c6,bde6,b8c8,eaae,dbf2,d8a4,daeb,eae0,f8bf,bacb,a3c6,ebdc,bad2,baa1,',
-	gan => ',b8cf,b8c9,b8d0,b8d2,b8cd,b8ca,b8ce,b8cc,b8cb,b8d3,b8d1,eaba,f4fb,edb7,f0e1,e3ef,dcd5,dfa6,e7a4,e9cf,e4f7,e4c6,decf,dbe1,b8f6,c7ac,eebc,bab4,bab9,b8ab,',
-	gang => ',b8d5,b8d6,b8d9,b8db,b8d7,b8da,b8dc,b8d4,b8d8,bfb8,f3e0,eeb8,edb0,bfba,d8f8,dfbf,e8af,b0b9,f1fe,',
-	gao => ',b8df,b8e3,b8e6,b8e5,b8e0,b8dd,b8e1,b8e2,b8e4,b8de,dbac,dabe,eabd,e7c9,d8ba,e9c0,efaf,e9c2,debb,ccbe,b2ba,bbaa,ddef,',
-	ge => ',b8f6,b8f7,b8e8,b8ee,b8e7,b8e9,b8f1,b8f3,b8f4,b8ef,bfa9,b8ec,b8f0,b8f2,b8ea,b8eb,b8ed,b8c7,d2d9,bacf,b8f5,edd1,f7c0,f2a2,f1cb,dcaa,f2b4,dbd9,efd3,d8ee,f4b4,d8aa,e0c3,ebf5,eba1,e6fc,dbc1,bde9,fdbf,b8c1,bac6,e7aa,edc0,baca,bcd8,eefe,d5a2,f7c4,',
-	gei => ',b8f8,',
-	gen => ',b8fa,b8f9,dfe7,dda2,d8a8,f4de,',
-	geng => ',b8fc,b8fb,beb1,b9a3,b9a2,b8fd,b8fe,b9a1,e2d9,f6e1,dfec,e7ae,bfba,d3b2,d0cf,',
-	gib => ',',
-	go => ',',
-	gong => ',b9a4,b9ab,b9a6,b9b2,b9ad,b9a5,b9ac,b9a9,b9a7,b9b0,b9b1,b9aa,b9ae,b9af,b9a8,baec,ebc5,f6a1,e7ee,f2bc,dfdb,b3de,b8dc,cbb4,bae7,f2cb,b8d3,',
-	gou => ',b9bb,b9b5,b9b7,b9b3,b9b4,b9ba,b9b9,b9b6,b9b8,bee4,e1b8,ecb0,e8db,f7b8,eaed,e7c3,f3d1,dab8,e5dc,e6c5,f3f4,d8fe,dac7,bed0,b5ab,f0b6,',
-	gu => ',b9c5,b9c9,b9c4,b9c8,b9ca,b9c2,b9bf,b9c3,b9cb,b9cc,b9cd,b9c0,b9be,b9c7,b9bc,b9c1,b9c6,bcd6,b9bd,e8f4,f0b3,e3e9,e9ef,e1c4,ddd4,f0c0,f7bd,eedc,ebfb,f4fe,dfc9,f6f1,daac,eaf4,eead,ecb1,efc0,eaf6,f0f3,f5fd,f2c1,eeb9,d8c5,bdb8,e6df,bfdd,fcbb,f0ad,b8de,ebd2,bfe0,bdc7,f7bb,',
-	gua => ',b9d2,b9ce,b9cf,b9d1,b9d0,b9d3,d8d4,dfc9,ebd2,f0bb,e8e9,dab4,e3b7,b0bd,c9e0,c0a8,',
-	guai => ',b9d6,b9d5,b9d4,dee2,a8df,cab9,',
-	guan => ',b9d8,b9dc,b9d9,b9db,b9dd,b9df,b9de,b9e0,b9da,b9e1,b9d7,c2da,eec2,f1e6,ddb8,dee8,e4ca,f7a4,f0d9,d9c4,b4ae,a5ce,d3b9,fbe8,afc2,ddd1,',
-	guang => ',b9e2,b9e3,b9e4,e8e6,e1ee,dfdb,ebd7,bbd0,c0a9,bae1,b2e4,',
-	gui => ',b9e9,b9f3,b9ed,b9f2,b9ec,b9e6,b9e8,b9f0,b9f1,b9ea,b9ee,b9eb,b9e5,b9e7,b9f4,bffe,b9ef,c8b2,e2d1,e5b3,e8ed,d8db,f7ac,f6d9,f0a7,d8d0,e6a3,ead0,f3fe,eac1,ceb1,d8d1,cddb,b9cd,cea6,ceb8,f0e3,edcd,c6ed,bbe6,f5fb,f5ea,daf3,',
-	gun => ',b9f6,b9f7,b9f5,f6e7,d9f2,edde,e7b5,d8ad,bbeb,bbec,efbf,f7a4,',
-	guo => ',b9fd,b9fa,b9fb,b9fc,b9f8,b9f9,ced0,dbf6,e9a4,f1f8,d9e5,e2a3,e1c6,dee2,e0fe,dfc3,ebbd,f2e4,f2e5,bbae,bba3,e0ed,b4ea,e8db,a4bb,e3af,f2e2,d9f9,efbe,',
-	ha => ',b9fe,b8f2,cfba,eefe,cfc5,bac7,e9e2,b3ce,',
-	hai => ',bbb9,baa3,baa6,bfc8,baa4,baa2,baa7,baa1,baa5,e0cb,f5b0,ebdc,f5df,bad2,f2a4,bad9,',
-	hal => ',',
-	han => ',bab0,baac,bab9,baae,baba,bab5,baa8,baab,bab8,baad,baaf,baa9,bab2,bab1,bab3,bab4,bab6,bab7,baaa,daf5,ddd5,defe,e5ab,e3db,f1fc,f2c0,ecca,f2a5,eacf,f7fd,b3a7,b2c7,e5b8,eaba,e3ef,fee4,c6cc,e4f7,b8ca,edb7,d0f9,eed4,',
-	hang => ',d0d0,cfef,babd,babb,babc,bfd4,f1fe,e3ec,e7ac,e7f1,e3e8,ecbf,bbc0,c7b8,b0b9,f4fb,',
-	hao => ',bac3,bac5,bac6,babf,babe,bac2,bac1,bac0,bac4,bad1,b8e4,eabb,f2ab,e5b0,e0e3,f2ba,e0c6,f0a9,ddef,e5a9,deb6,bba3,e6a4,aeaa,b8de,d8ba,',
-	he => ',bacd,bac8,bacf,bad3,bacc,bacb,bace,bac7,bac9,bad8,bad5,bad6,bad0,bad7,baca,bad1,bad2,bad4,cfc5,e0c0,dbc0,eec1,f4e7,e3d8,f2a2,dbd6,daad,e6fc,eac2,dedf,c3ba,b9fe,dbe0,baa6,bdd2,adb8,cec7,bfca,e7aa,b9e8,bdc9,bfc1,debd,f2c2,d0ab,e9fb,cfbd,e3d2,bbf4,f0c0,',
-	hei => ',bada,e0cb,a6fc,bad9,',
-	hen => ',badc,badd,bade,badb,e4df,cfc6,f4de,',
-	heng => ',bae1,bae3,badf,bae2,bae0,d0d0,e8ec,e7f1,debf,eeaa,d9ea,',
-	ho => ',',
-	hol => ',',
-	hong => ',baec,bae4,bae5,bae7,bae9,baea,bae6,bae8,baeb,daa7,d9ea,deae,e3c8,deb0,d9e4,dda6,e3fc,cdf4,cdb8,',
-	hou => ',baf3,baf1,baf0,baed,baee,baf2,baef,f6d7,f3f3,dca9,e1e1,e5cb,f4d7,f7bf,f0fa,eab2,dab8,',
-	hu => ',bafe,bba7,baf4,bba2,baf8,bba5,bafa,bba4,bafd,bba1,baf6,bafc,bafb,baf9,bba6,baf5,cfb7,bacb,bacd,baf7,bba3,f0c9,d9fc,e2ef,f0d7,f3cb,ece6,ece8,f7bd,e4b0,ecef,f5ad,e7fa,e0f1,ecc3,e9f5,f0ad,ecce,f5fa,f0c0,e2a9,e3b1,e1b2,e4ef,ecb2,dffc,e9ce,a3e3,daad,d3f0,ebd2,c2ab,dccc,bfe0,f2ae,d0ed,eedc,b9cd,',
-	hua => ',bbb0,bba8,bbaf,bbad,bbaa,bbae,bbac,bba9,bbab,bbed,eefc,e8eb,e6e8,edb9,d9a8,d8e5,c5cd,c3d1,d5d2,e7b5,e4ab,d2aa,effd,f6d9,',
-	huai => ',bbb5,bbb3,bbb4,bbb1,bbb2,bbae,f5d7,e0b0,dbda,c5f7,',
-	huan => ',bbbb,bbb9,bbbd,bbb7,bbbc,bbba,bbb6,bbc3,bbc2,bbc1,bbc0,bbbf,bbb8,bbbe,e4f1,e2b5,dfa7,e5d5,f6e9,dba8,f7df,e5be,dbbc,efcc,e0f7,e4a1,ddc8,e7d9,e4bd,f5db,d4ae,d7b9,edaa,e8a5,cdee,d1a3,ebe4,f0d9,',
-	huang => ',bbc6,bbc5,bbce,bbc4,bbc9,bbcb,bbca,bbd1,bbcc,bbc8,bbc7,bbd0,bbcd,bbcf,daf2,ebc1,e4ea,f3f2,e1e5,f6fc,e5d8,f1a5,e4d2,f3a8,e8ab,c3a2,c3a3,',
-	hui => ',bbd8,bbe1,bbd2,bbe6,bbd3,bbe3,bbd4,bbd9,bbda,bbdd,bbde,bbd5,bbd6,bbe0,bbdb,bbdf,bbd7,bbe4,bbb2,bbdc,bbe2,bbe5,e5e7,e4ab,e7f5,dea5,e0b9,eda3,dfdc,eacd,e3c4,f7e2,dab6,f3b3,dcee,e4a7,dfd4,f2b3,dcf6,e7c0,b6e9,fee8,bbc1,f0a9,edf5,eea1,b3e6,cea5,cea4,c0a3,',
-	hun => ',bbec,bbe8,bbe7,bbeb,bbe9,bbea,e3d4,e7f5,e2c6,e4e3,dabb,f9bb,d3c0,c0a5,b9f7,e7b5,e7c5,',
-	huo => ',bbf2,bbee,bbf0,bbef,bbf5,bacd,bbf1,bbf6,bbed,bbf4,bbf3,e0eb,efec,f1eb,d8e5,debd,dfab,efc1,f3b6,eed8,e2b7,bbaf,a3b0,ece1,f0ad,d4bd,',
-	hwa => ',',
-	i => ',',
-	ji => ',bcb8,bcb0,bcb1,bcc8,bcb4,bbfa,bca6,bbfd,bcc7,bcb6,bcab,bcc6,bcb7,bcba,bcbe,bcc4,bccd,cfb5,bbf9,bca4,bcaa,bcb9,bcca,bcb3,bca1,bcb5,bca7,bca8,bca9,bca2,bca3,bcac,bcbb,bcbc,bcbd,bcad,bcbf,bcc0,bcc1,bcc2,bcc3,bcae,bcc5,c6da,c6e4,c6e6,bcc9,c6eb,bccb,bccc,bcaf,b8f8,b8ef,bbf7,bbf8,bbfe,bca5,bbfb,bbfc,bcb2,dbd4,e4a9,f6dd,e5ec,ecb4,eaaa,f6ea,effa,edb6,f0a2,eaab,f2b1,dab5,f3c5,f4df,f3c7,d8de,dfb4,ddf0,f5d2,e1d5,dee1,f5d5,f6ab,dff3,e7dc,dcf9,f1a4,e7e1,eebf,d8a2,d9ca,dcb8,d9a5,eae5,e9ae,f7d9,dfd2,deaa,eae9,f7e4,e6f7,e9ea,e1a7,d8bd,eaf7,d8c0,dcc1,dfe2,b3d2,dfb2,d8c8,a8be,e5e6,d5d2,c6e5,bde0,e4aa,e2a2,b4c3,f1a9,eea5,f6c4,bdd5,f4d2,bde1,d9f5,ddbd,dead,bde5,c0af,eae8,eaeb,daa6,dba4,b8f4,c6ef,',
-	jia => ',bcd2,bcd3,bcd9,bcdb,bcdc,bcd7,bcd1,bcd0,bcce,bcdd,bcde,bccf,bcd4,bcd5,bcd8,bcda,c7d1,bcd6,eef2,dde7,e5c8,eaa9,e4a4,efd8,f0e8,eda2,e1b5,f5ca,d8c5,d9a4,ebce,f3d5,e7ec,f0fd,dba3,f4c2,f2cc,addf,c8bf,aecf,d1ba,ded7,eafc,d0ae,b6bf,d0cf,c7aa,f1ca,eefe,f2a1,c2e6,f7ba,',
-	jian => ',bcfb,bcfe,bcf5,bce2,bce4,bcfc,bcfa,bce7,bce6,bda8,bcec,bcfd,bce5,bcf2,bcf4,bcdf,bce0,bce1,bce9,bda1,bce8,bcf6,bda3,bda5,bda6,bda7,bcf8,c7b3,bcf9,bcf1,bced,bce3,bcf3,bcee,bcef,bcf0,bda2,bcf7,bcea,bceb,bda4,f4e5,f7b5,eaa7,dac9,eaf0,e8c5,ebec,f5c2,e7cc,def6,eaaf,eba6,ddd1,f6e4,f3c8,dad9,e9a5,e0ee,e5bf,f1d0,f5dd,edfa,e5c0,f0cf,ddf3,d9d4,efb5,e4d5,efc7,abba,d4c7,a7e5,fce8,c0c4,eaf9,f3f0,cfcb,dda2,dada,c7ae,cfd5,e5b9,dbc8,',
-	jiang => ',bdab,bdb2,bdad,bdb1,bdb5,bdac,bda9,bdaa,bdb4,bdaf,bdae,bdb3,c7bf,bdb0,bae7,f4f8,ede4,e7d6,eaf1,f1f0,e7ad,dcfc,f4dd,e4ae,baec,',
-	jiao => ',bdd0,bdc5,bdbb,bdc7,bdcc,bdcf,bdc9,bef5,bdb9,bdba,bdbf,bdca,d0a3,bdc1,bdbe,bdc6,bdbd,bdc3,bdbc,bdc0,bdb6,bdce,bdd1,bdb7,bdb8,bdc8,bdc2,bdcd,bdc4,bdcb,e1e8,dcb4,d9d5,f2d4,ebb8,e1bd,f5d3,e6af,f0a8,dcfa,f0d4,e0dd,f5b4,d9ae,e4d0,f6de,ded8,c7c7,c7c8,e4c8,d3d2,d1fd,f9d1,b2bc,f7aa,bec0,ddc4,e6f9,',
-	jie => ',bdd3,bdda,bdd6,bde8,bdd4,bdd8,bde2,bde7,bde1,bdec,bde3,bdd2,bde4,bde9,bdd7,bdd9,bde6,bddf,bde0,bdea,bde5,bcdb,bfac,bdd5,bddb,bddc,bddd,bdeb,bdde,bcd2,d9ca,e8ee,e0ae,ded7,f7ba,f4c9,f2bb,e0b5,f2a1,f6da,e6bc,edd9,daa6,e6dd,f0dc,dab5,baa5,bcd9,c3df,bbf8,fbc6,f5cb,b5a3,cab0,f4df,b8c5,bfca,cfaa,e2b3,edc0,d7e6,bcae,e6fc,f1ca,efc7,f7d8,dae0,',
-	jin => ',bdf8,bdfc,bdf1,bdf6,bdf4,bdf0,bdef,bea1,bea2,bdfb,bdfe,bdf5,bdfa,bdee,bdf2,bdf7,bded,bdf3,bdfd,bdf9,e2db,e8aa,e2cb,e9c8,f1c6,ddc0,dda3,f1e6,e0e4,e7c6,dae1,e6a1,eae1,eaee,d2f7,c0df,eec4,efb7,',
-	jing => ',beb9,beb2,beae,beaa,bead,beb5,bea9,bebb,beb4,beab,beb0,beaf,beba,beb3,beb6,bea3,bea7,bea8,beac,beb1,bea4,bea5,bea6,bea2,beb7,beb8,ebc2,e2b0,dae5,ebe6,e5f2,d8d9,e3bd,e6ba,ebd6,ddbc,d9d3,ecba,e5c9,f6a6,e3fe,ecea,e9d1,cacf,ccfe,f3e4,f2df,d0d1,daea,c7e0,',
-	jiong => ',bebd,bebc,ece7,e5c4,d8e7,dbf0,eac1,',
-	jiu => ',becd,bec5,bec6,bec9,bec3,bebe,bec8,bec0,becb,bebf,bec2,bec7,beca,bec1,bec4,becc,bece,f4f1,f0d5,f5ed,d9d6,e8d1,e8ea,f7dd,f0af,e3ce,e0b1,e0dd,b3ee,e4d0,acae,e7d1,f2f8,',
-	jou => ',',
-	ju => ',bee4,bed9,bede,bed6,bedf,bee0,bee2,bee7,bed3,bedb,bed0,bed5,bed8,beda,bedc,bee5,becf,bed1,bed4,c7d2,bedd,b9f1,bddb,bee3,b3b5,bed7,bed2,bee1,bee6,d9c6,f5b6,f1d5,e5f0,eaf8,dcda,f1c0,ecab,efb8,e9a7,dcc4,e8a2,dee4,e9b0,f6b4,f4f2,dcec,f6c2,e5e1,e9d9,f5e1,e9b7,f7b6,eed2,daaa,e8db,b3f0,bcd8,fbb8,b1bd,dbc8,b9b0,c7fe,f3ab,f6c4,d7e2,c2a8,ddcf,dde4,debe,c7f9,d7e3,d7de,dbb8,b3fa,b3fb,bdbe,e5f7,',
-	juan => ',beed,c8a6,beeb,bee9,bee8,beea,beec,beee,dbb2,efc3,eec3,efd4,e1fa,e8f0,e4b8,f6c1,d4df,a8e3,d5e7,d1a3,edfc,c8ef,f2e9,c9ed,',
-	jue => ',bef6,bef8,bef5,bdc7,bef4,bef2,bef7,beef,bef3,bef1,bef0,bdc0,bdc5,e8f6,e0e5,e9d3,e0b5,f5fb,d8e3,ecdf,dbc7,efe3,e2b1,e7e5,e1c8,dea7,e0d9,dadc,f5ea,e6de,d8ca,d2d2,c7fc,c7e8,bff1,d1a8,dea9,cddc,f3bd,bdcf,e3d7,e3da,f7b3,f7ac,',
-	jun => ',befc,befd,bef9,befa,bfa1,befe,b9ea,bfa2,bfa5,befb,bfa3,bfa4,f3de,f7e5,f1e4,dedc,f2d4,d1ae,f3e2,a1ac,d9ea,f6c1,',
-	ka => ',bfa8,bfa6,bfa9,bfa7,ebcc,dfc7,d8fb,e7ec,',
-	kai => ',bfaa,bfab,bfad,bfae,bfac,dbee,d8dc,efb4,eef8,efc7,e2e9,e2fd,dddc,dbc0,d1ba,b0ba,bfca,e4db,fdd0,eff4,',
-	kal => ',',
-	kan => ',bfb4,bfb3,bfb0,bfaf,c7b6,bfb2,bcf7,bfb1,ede8,eaac,d9a9,eeab,dda8,e3db,dddb,c9ba,ddb2,cfda,',
-	kang => ',bfb9,bfbb,bfb8,bfb7,bfb5,bfb6,bfba,eed6,e3ca,d8f8,e3bf,d3b7,babc,b1e3,e8b3,bbc4,',
-	kao => ',bfbf,bfbc,bfbe,bfbd,e8e0,eafb,e5ea,eeed,cfec,b0de,d8b8,e9c2,',
-	ke => ',bfc8,bfc9,bfcb,bfc3,bfc6,bfc5,bfcc,bfce,bfcd,bfc7,bfca,bfc1,bfc2,bfc4,bfc0,bac7,e3a1,e1b3,f2f2,e7bc,f2c2,e9f0,f1bd,eedd,ebb4,f2a4,eea7,efbe,effd,e7e6,f7c1,f0e2,e0be,e4db,e6ec,bfa6,c9af,eec1,edd9,eefe,efb9,',
-	kei => ',bfcc,',
-	ken => ',bfcf,bfd0,bfd2,bfd1,f1cc,dbf3,f5ba,ddab,f1fd,f6b8,',
-	keng => ',bfd3,bfd4,efac,ecfe,beb3,edca,ebd6,eeef,',
-	ki => ',',
-	kong => ',bfd5,bfd7,bfd8,bfd6,d9c5,e1c7,f3ed,efb3,f1b7,c7bb,',
-	kos => ',',
-	kou => ',bfda,bfdb,bfd9,bfdc,dea2,dcd2,edee,f3d8,dfb5,d8fe,bce5,bfe6,',
-	ku => ',bfde,bfe2,bfe0,bfdd,bfe3,bfdf,bfe1,d8da,f7bc,e0b7,dca5,e7ab,b9c5,fdca,bfe6,b9be,bfe7,',
-	kua => ',bfe7,bfe5,bfe6,bfe4,bfe8,d9a8,ebbd,efbe,f7c1,',
-	kuai => ',bfec,bfe9,bfea,bbe1,bfeb,dfe0,d8e1,e4ab,dba6,e1f6,ebda,bffe,d2aa,ddde,bffd,',
-	kuan => ',bfed,bfee,f7c5,cdea,bfc3,bfc5,',
-	kuang => ',bff3,bff0,bff1,bff2,bff6,bff5,bfef,bff4,dabf,daf7,e6fe,dec5,dab2,dbdb,eadc,dfd1,d0d6,e7cd,ace4,efb1,bbc7,b9e4,',
-	kui => ',bff7,c0a2,bffc,bffa,bffb,bffd,c0a1,bff8,bffe,bff9,d8d1,e3b4,def1,eea5,f5cd,f1f9,f3f1,e0ad,e5d3,ead2,ddde,e3a6,e0b0,d8b8,f2f1,daf3,d9e7,c8b1,f4a7,f5fb,b2c8,e3d7,c7ea,c0a3,',
-	kun => ',c0a6,c0a7,c0a5,c0a4,f6ef,efbf,f7d5,e7fb,f5ab,e3cd,e3a7,c2d1,d9bb,e3aa,cde7,e2c6,f7a4,f6b8,',
-	kuo => ',c0ab,c0a9,c0aa,caca,f2d2,e8e9,bbe1,d8da,dfe0,daf7,c0a8,',
-	kweok => ',',
-	kwi => ',',
-	la => ',c0ad,c0b2,c0b1,c0af,c0b0,c0ae,c0ac,c0b6,c2e4,f0f8,e5e5,edc7,d8dd,eab9,dfa1,f1ae,',
-	lai => ',c0b4,c0b5,c0b3,e4fe,eae3,e1c1,e4b5,efaa,f4a5,e1e2,edf9,f7f3,f1ae,',
-	lan => ',c0b6,c0bc,c0c3,c0b9,c0ba,c0c1,c0b8,c0bf,c0c2,c0c4,c0bb,c0be,c0b7,c0bd,c0c0,e9ad,e1b0,f1dc,efe7,ecb5,eebd,e4ed,dff8,e2de,b0e3,c7c1,b1c1,dac9,b3bb,',
-	lang => ',c0cb,c0c7,c0c8,c0c9,c0ca,c0c6,c0c5,effc,f2eb,ddb9,e0a5,efb6,e3cf,ddf5,b8fe,f5d4,',
-	lao => ',c0cf,c0cc,c0ce,c0cd,c0d3,c0d4,c2e4,c0d1,c0d2,c2e7,c0d0,c1ca,f1ec,efa9,f5b2,eeee,dfeb,e8e1,e1c0,f0ec,c1c5,c6c1,b3aa,e2b2,dea4,',
-	le => ',c1cb,c0d6,c0d5,c0df,f7a6,d8ec,dfb7,e3ee,e0cf,acab,',
-	lei => ',c0e0,c0db,c0e1,c0d7,c0dd,c0d5,c0de,c0d9,c0df,c0d8,c0dc,c0da,e7d0,dab3,f1e7,f5aa,d9fa,e6d0,e9db,e0cf,b1c2,dfd6,e4f0,',
-	li => ',c0ef,c0eb,c1a6,c1a2,c0ee,c0fd,c1a8,c0ed,c0fb,c0e6,c0e5,c0f1,c0fa,c0f6,c0f4,c0f9,c0ec,c0f2,c0fc,c0f3,c0fe,c1a1,c0ea,c1a3,c1a4,c1a5,c0f5,c1a7,c0f0,c0f7,c0f8,c0e7,c0e8,c0e9,dbaa,f0bf,f3d2,dbde,dcc2,f7af,e7ca,f5c8,f2db,efae,e3a6,e5a2,f4cf,ddf1,e8c0,f3bb,d8aa,dfbf,edc2,e6cb,f3f6,f0dd,f0df,e1fb,debc,e4e0,f6e2,ece5,e8dd,e0a6,f5b7,e9f6,eeba,e6ea,eebe,e5ce,d9b3,e0ac,f6a8,f7f3,ddb0,d9b5,f2c3,e6b2,d8ec,cebb,c1d0,acdf,dee6,c6fc,d8ab,e7f3,edc7,edd1,f4e7,eee5,efd3,f6b2,ecaa,',
-	lia => ',c1a9,',
-	lian => ',c1ac,c1aa,c1b7,c1ab,c1b5,c1b3,c1b6,c1b4,c1b2,c1af,c1ae,c1b1,c1ad,c1b0,f3b9,e7f6,e9e7,ddfc,f6e3,dec6,e4f2,eca1,f1cd,e5a5,f1cf,e9ac,c1ee,e6ae,d9c2,cede,eeac,d9fa,eca2,dcdf,ddb2,efe7,c1e3,',
-	liang => ',c1bd,c1c1,c1be,c1b9,c1b8,c1ba,c1bf,c1bc,c1c0,c1c2,c1a9,c1bb,dcae,f6a6,f5d4,e9a3,f7cb,ddb9,beaa,b4ba,f5e7,e3cf,d9fb,',
-	liao => ',c1cb,c1cf,c1c3,c1c4,c1cc,c1c6,c1ce,c1c7,c1c9,c1c5,c1c8,c1cd,c1ca,eec9,dea4,decd,e5bc,e7d4,e2b2,f0d3,e0da,c0d0,c0cd,',
-	lie => ',c1d0,c1d1,c1d4,c1d3,c1d2,dfd6,dbf8,dee6,f7e0,f4f3,f5f1,d9fd,e4a3,c0fd,c0f5,daaa,b2b2,e5e5,',
-	lin => ',c1d6,c1d9,c1dc,c1da,c1d7,c1db,c1de,c1df,c1e0,c1d5,c1d8,c1dd,e5e0,e1d7,ddfe,f4d4,f7eb,f5ef,eaa5,e2de,e3c1,eeac,e9dd,eca2,dff8,c8ce,d8c9,fbaa,d2f5,',
-	ling => ',c1ed,c1ee,c1ec,c1e3,c1e5,c1e1,c1e9,c1eb,c1e4,c1e8,c1ea,c1e2,c1e6,c1e7,c0e2,f4e1,f2c8,dcdf,e7b1,eab2,dbb9,dfca,e3f6,e8f9,e8da,f6ec,f1f6,e0f2,c0e4,b6c1,afc1,f7ac,c1d7,b6a4,',
-	liu => ',c1f9,c1f7,c1f4,c1f5,c1f8,c1ef,c1f2,c1f6,c1f1,c1f0,c1f3,c2b5,c2bd,e7b8,efb3,f6cc,efd6,e4af,e6f2,ecbc,f0d2,ecd6,e5de,d9cd,cbc2,e3f7,b1c3,d3ce,deab,c1c4,dde4,dea4,c3ad,',
-	lo => ',bfa9,',
-	long => ',c1fa,c2a3,c1fd,c1fb,c2a1,c2a2,c5aa,c1fc,c1fe,c2a4,dbe2,ebca,e7e7,dcd7,e3f1,e8d0,f1aa,edc3,c6b3,c5d3,dcd7,',
-	lou => ',c2a5,c2a7,c2a9,c2aa,c2b6,c2a6,c2a8,d9cd,f2f7,efce,dde4,f1ef,f7c3,e0b6,f0fc,e1d0,d3c0,ceae,',
-	lu => ',c2b7,c2b6,c2bc,c2b9,c2bd,c2af,c2ac,c2b3,c2b1,c2ab,c2ad,c2ae,c2b5,c2b0,c2cc,c2b2,c2b8,c2be,c2ba,c2bb,c2b4,c1f9,f6d4,e8d3,e4cb,dea4,e5d6,e3f2,e9f1,ebaa,f3fc,e9d6,e9fb,dbe4,ebcd,e0e0,efe5,eaa4,e4f5,dfa3,e8b4,f0b5,f0d8,f4b5,dedb,c7de,c2cb,f1ac,b7f4,bdc7,b9c8,c0d2,',
-	luan => ',c2d2,c2d1,c2d0,c2cd,c2cf,c2ce,e8ef,f6c7,d9f5,e6ae,f0bd,b4b0,',
-	lue => ',c2d4,c2d3,efb2,c2ca,d2a9,',
-	lun => ',c2db,c2d6,c2d5,c2d7,c2d9,c2d8,c2da,e0f0,d3b1,',
-	luo => ',c2e4,c2de,c2e0,c2e3,c2e2,c0d3,c2e1,c2dd,c2dc,c2e5,c2e6,c2df,c2e7,bfa9,dcfd,e4f0,d9f9,f6c3,d9c0,edd1,e9a1,dedb,ebe1,f1a7,defb,e3f8,e7f3,efdd,e2a4,c0d6,efb9,fbb8,b7e9,cbb8,cee2,a3ab,c2b5,f2e4,f3bb,f1cb,f5c8,c2b7,b8f5,',
-	lv => ',c2cc,c2ca,c2c1,c2bf,c2c3,c2c5,c2cb,c2c0,c2c9,c2c8,c2c6,c2c2,c2c7,c2c4,d9cd,ebf6,e9b5,e3cc,dedb,f1da,eff9,c2ac,bec2,afc2,c2a8,c0db,dde4,efce,c2b3,c2b9,',
-	m => ',dfbc,',
-	ma => ',c2f0,c2e8,c2ed,c2ef,c2e9,c2ee,c4a8,c2eb,c2ea,c2ec,c4a6,dfe9,f3a1,e1ef,e6d6,e8bf,c3b4,d8c4,d0aa,ddeb,bad1,f5f6,c3d2,f7e1,',
-	mai => ',c2f2,c2f4,c2f5,c2f1,c2f3,c2f6,dbbd,f6b2,dda4,eadf,e4c1,d3c5,c9c3,dfe9,',
-	man => ',c2fa,c2fd,c2f7,c2fe,c2f9,c2fb,c2fc,c2f8,c2f1,c3a1,e1a3,f7a9,dcac,f2fd,efdc,f2a9,f7b4,e7cf,ecd7,ccc4,d9aa,f5e7,',
-	mang => ',c3a6,c3a2,c3a4,c3a7,c3a3,c3a5,edcb,daf8,f2fe,e4dd,ebfc,bdaa,deab,c1fa,',
-	mao => ',c3ab,c3b0,c3b1,c3a8,c3ac,c3ae,c3b2,c3af,c3b3,c3ad,c3aa,c3a9,eba3,dce2,e8a3,f2fa,f7d6,edae,eac4,eaf3,eea6,e1b9,d9f3,f3b1,ecb8,e3f7,d9b0,d8db,f9c3,c4b2,d3aa,bac4,f2d6,',
-	me => ',c3b4,f7e1,',
-	mei => ',c3bb,c3bf,c3ba,c3be,c3c0,c3b8,c3c3,c3b6,c3b9,c3b5,c3bc,c3b7,c3c2,c3c1,c3bd,c3d3,c3c4,c3d5,c4ad,e1d2,e2ad,f1c7,e4d8,e4bc,f0cc,ddae,f7c8,efd1,e9b9,d0ce,dbe9,c4ab,c4b3,',
-	men => ',c3c5,c3c7,c3c6,edaf,ded1,eecd,eccb,e3eb,bac2,e7e4,f7b4,',
-	meng => ',c3cd,c3ce,c3c9,c3cc,c3cf,c3cb,c3ca,c3c8,c3a5,ede6,f2ec,dbc2,e3c2,ddf9,f3b7,f2b5,ebfc,f4bb,f4bf,deab,c3f7,f7ab,eea8,f3b1,f2fe,f6bc,',
-	meo => ',',
-	mi => ',c3d7,c3dc,c3d4,c3d0,c3db,c3d5,c3d9,c3d8,c3d6,c3dd,c3d2,c3d3,c3da,c3d1,dec2,f7e3,dfe4,e3e8,f7e7,ecf2,e2a8,e5f4,dad7,d8c2,ebdf,e5b5,f4cd,e0d7,f4e9,f1da,aab6,c8e7,dbc4,e4e9,e2b4,b1d9,',
-	mian => ',c3e6,c3de,c3e2,c3e0,c3df,c3e5,c3e3,c3e1,c3e4,ebef,e4cf,eded,e3e6,f6bc,e4c5,c1da,f3e3,a4ee,a8b2,e7c5,e5b2,',
-	miao => ',c3eb,c3e7,c3ed,c3ee,c3e8,c3e9,c3ea,c3ec,edf0,e7d1,e7bf,edb5,dff7,e8c2,f0c5,e5e3,a3b3,aec3,a8ab,c9b4,f2e7,',
-	mie => ',c3f0,c3ef,dfe3,f3fa,f3ba,d8bf,b8df,dac5,',
-	min => ',c3f1,c3f2,c3f4,c3f6,c3f3,c3f5,e7eb,edaa,e7c5,e3c9,e7e4,dce5,e3fd,f6bc,f7aa,e1ba,a1e3,c3df,c9fe,',
-	ming => ',c3fb,c3f7,c3fc,c3f9,c3fa,c3f8,c3cb,daa4,eea8,ead4,dcf8,e4e9,f5a4,b3aa,c3c8,',
-	miu => ',c3fd,e7d1,',
-	mo => ',c3fe,c4a5,c4a8,c4a9,c4a4,c4ab,c3bb,c4aa,c4ac,c4a7,c4a3,c4a6,c4a1,c4ae,c4b0,c4a2,c2f6,c4ad,cdf2,cede,c3b0,c4af,eff7,f1a2,e9e2,efd2,e6c6,dad3,ddeb,f5f6,f5f8,f7e1,dcd4,e2c9,f1f2,c3b4,b2ae,b0db,b9ce,c5c1,dbb8,c3c1,b0d9,c3ea,f3a1,cde0,bad1,c3b2,bad9,e6d6,',
-	mou => ',c4b3,c4b1,c4b2,edf8,f2d6,f6ca,d9b0,e7d1,dfe8,bcfe,c0db,e9e6,fcce,a3b2,d9f3,f2fa,',
-	mu => ',c4be,c4b8,c4b6,c4bb,c4bf,c4b9,c4c1,c4b2,c4a3,c4c2,c4ba,c4b5,c4b4,c4bc,c4bd,c4c0,c4b7,c0d1,eee2,eba4,dbe9,e3e5,d8ef,dcd9,c3e6,f1aa,e7d1,dfbc,bad9,',
-	myeo => ',',
-	myeon => ',',
-	myeong => ',',
-	n => ',e0c5,dfe7,',
-	na => ',c4c7,c4c3,c4c4,c4c9,c4c6,c4c8,c4c5,c4cf,f1c4,dee0,efd5,ebc7,c8c4,c8df,f3e8,d0f5,',
-	nai => ',c4cb,c4cd,c4cc,c4ce,c4ca,c4c4,ddc1,dcb5,e8cd,d8be,d9a6,c3af,c4dc,',
-	nan => ',c4d1,c4cf,c4d0,f4f6,e0ef,f2ef,e9aa,e0ab,ebee,e0ee,ccaf,afcc,b2ae,f2a2,',
-	nang => ',c4d2,e2ce,ead9,e0ec,dfad,b2df,b2cc,',
-	nao => ',c4d6,c4d4,c4d5,c4d3,c4d7,d8ab,eef3,e8a7,dbf1,dfce,f2cd,e2ae,edd0,bdbd,b2ab,',
-	ne => ',c4d8,c4c4,c4c7,c4c5,daab,f0db,f0da,',
-	nei => ',c4da,c4c4,c4d9,c4c7,d4c3,',
-	nem => ',',
-	nen => ',c4db,eda5,afe8,c4c4,',
-	neng => ',c4dc,b6f8,c4cd,',
-	neus => ',',
-	ng => ',e0c5,',
-	ngag => ',',
-	ngai => ',',
-	ngam => ',',
-	ni => ',c4e3,c4e0,c4e2,c4e5,c4e6,c4d8,c4e7,c4df,c4e1,c4e4,c4dd,c4de,eeea,eac7,dbe8,ecf2,e2a5,d9a3,e2f5,f6f2,edfe,ecbb,dbe1,eeed,e4dc,f9af,',
-	nian => ',c4ea,c4ee,c4ed,c4ec,c4e9,c4eb,c4e8,d5b3,d8a5,f0a4,e9fd,f6d3,f6f3,dbfe,c7af,b3c3,d5b7,',
-	niao => ',c4f1,c4f2,f4c1,dce0,ebe5,e6d5,d8de,d2c4,e7c6,',
-	nie => ',c4f3,c4f8,c4f4,c4f5,c4f9,c4f7,c4f6,daed,dec1,e0bf,f4ab,f5e6,f2a8,d8bf,c4df,dce0,dbfe,d0d2,b6c4,c9e3,c7af,edb1,',
-	nin => ',c4fa,eda5,',
-	ning => ',c5a1,c4fd,c4fe,c4fb,c4fc,c5a2,d8fa,e5b8,dfcc,f1f7,b1f9,c4ea,c8c1,f4aa,d2c9,',
-	niu => ',c5a3,c5a4,c5a6,c5a5,ded6,e6a4,e1f0,e2ee,abbc,f2ca,',
-	nong => ',c5aa,c5a8,c5a9,c5a7,dfe6,d9af,dfc7,e2b0,dec3,',
-	nou => ',f1f1,',
-	nu => ',c5ad,c5ac,c5ab,e6db,e6c0,e6e5,e5f3,bdf6,d5df,cee0,c8ec,',
-	nuan => ',c5af,a8e5,',
-	nue => ',c5b0,c5b1,daca,',
-	nun => ',',
-	nung => ',',
-	nuo => ',c5b2,c5b5,c5b3,c5b4,c4c8,dff6,d9d0,efbb,def9,c8c4,c5c4,c2b5,c4c7,c4d1,d0e8,',
-	nv => ',c5ae,f4ac,eecf,eda4,e1f0,d0f5,ebc7,',
-	nve => ',c5b1,c5b0,',
-	o => ',c5b6,e0b8,e0de,',
-	oes => ',',
-	ol => ',',
-	on => ',',
-	ou => ',c5bc,c5bb,c5b7,c5ba,c5b8,c7f8,c5bd,c5b9,e2e6,eab1,daa9,f1ee,bfd9,ced5,aae4,e0ae,e6fa,d3f6,',
-	pa => ',c5c2,c5c0,c5bf,c5be,b0d2,b0c7,c5c1,c5c3,c5c9,f3e1,e8cb,dde2,b0c8,b0c9,b0d1,b0c5,eed9,',
-	pai => ',c5c9,c5c5,c5c4,c5c6,c6c8,c5c7,c5c8,dfdf,d9bd,dde5,b7c8,dbaa,c6a2,',
-	pak => ',',
-	pan => ',c5cc,c5ce,c5d0,c5ca,c5cf,c5cb,c5d1,c5cd,b7ac,b0e3,c5d6,f1e1,f3b4,f1c8,e3fa,ded5,e3dd,f5e7,b0e9,ebb0,ebb1,e6a9,c9f3,b4db,cdd1,e5b0,e2b0,cec6,a5ae,f0ab,b7b1,dbb6,',
-	pang => ',c5d4,c5d6,c5d5,c5d3,c5d2,b0f2,b0f5,e4e8,e1dd,e5cc,f3a6,b7c2,b0f8,b4c5,cfb7,bfb7,d0ba,ddf2,b7ea,b0f7,',
-	pao => ',c5dc,c5d7,c5da,c5dd,c5d9,c5db,c5d8,e1f3,decb,e2d2,f0e5,ebe3,b0fc,b1a7,dcad,b0fb,b0fa,eca9,b1ab,',
-	pei => ',c5e3,c5e4,c5e2,c5de,c5df,c5e5,c5e0,c5e6,c5e1,ecb7,efc2,e0fa,f5ac,f6ac,e0ce,b1b6,b7c8,bbb5,a1e5,dee5,d6e4,e9ab,e5f5,dcd8,f2e3,',
-	pen => ',c5e7,c5e8,e4d4,b7d4,b1be,b7da,e5ad,',
-	peng => ',c5f6,c5f5,c5ef,c5e9,c5ee,c5f3,c5ed,c5f4,c5eb,c5f0,c5f2,c5ea,c5ec,c5f1,e2f1,dca1,f3b2,e0d8,bae0,b0f8,d7af,c5d4,e4e8,d4af,c6bb,b1c5,b7ea,',
-	peol => ',',
-	phas => ',',
-	phdeng => ',',
-	phoi => ',',
-	phos => ',',
-	pi => ',c5fa,c6a4,c5fb,c6a5,c5fc,b1d9,c5f7,c6a8,c6a2,c6a7,c6a3,c6a6,c5f9,c5fd,c5fe,c6a1,c6a9,c5f8,b7f1,f5f9,d8a7,dbdc,e6c7,f1b1,d8f2,dfa8,dbaf,eab6,e8c1,eea2,f2e7,dcb1,dafc,dfc1,dae9,eeeb,e2cf,eebc,dbfd,e7a2,daf0,e4c4,e0e8,f2b7,f1d4,c9d9,c2b8,b1b1,babb,b5c5,efe0,fab1,d3e2,c6cb,b7f7,b1c8,dde5,f8aa,f1e2,f0ed,f3f7,dcc5,dcd6,ddc9,deac,b0f6,b1bb,dbb6,eed0,c6c4,',
-	pian => ',c6ac,c6aa,c6ad,c6ab,b1e3,b1e2,f4e6,e7c2,eafa,e6e9,ebdd,f5e4,dad2,c6bd,f2f9,f1db,b1e7,',
-	piao => ',c6b1,c6ae,c6af,c6b0,c6d3,f3aa,ddb3,e6ce,eea9,e9e8,e7ce,e0d1,e6f4,d8e2,dcb0,b1ec,f7d4,',
-	pie => ',c6b3,c6b2,ebad,dcd6,d8af,b7ce,b1ce,',
-	pin => ',c6b7,c6b6,c6b8,c6b4,c6b5,e6c9,e9af,e6b0,eaf2,f2ad,d8b0,b9e6,e5de,fdb1,c3ab,',
-	ping => ',c6bd,c6be,c6bf,c6c0,c6c1,c6b9,c6bc,c6bb,c6ba,b7eb,e6b3,f6d2,e8d2,d9b7,c5e9,daa2,b3d3,',
-	po => ',c6c6,c6c2,c6c4,c6c5,c6c3,c6c8,b2b4,c6c7,c6d3,b7b1,c6c9,f3cd,f0ab,eec7,dae9,dbb6,eab7,d8cf,e7ea,eede,c2e4,b2b2,f5cb,b0d4,e3f8,',
-	pou => ',c6ca,dee5,d9f6,a1c5,b1a7,b8a2,c1b9,b0fd,f5db,b2bf,efc2,',
-	ppun => ',',
-	pu => ',c6cb,c6cc,c6d7,b8ac,c6cd,c6d1,c6cf,c6d3,c6d0,c6ce,c6d9,c6d2,c6d4,c6d6,b1a4,c6d5,b1a9,efe8,e0db,d9e9,e4df,e5a7,ebab,f5eb,e8b1,efe4,b0fe,b2b7,b7f6,f2ea,b8a6,dcde,ebb6,c6d8,',
-	q => ',e8a3,',
-	qi => ',c6f0,c6e4,c6df,c6f8,c6da,c6eb,c6f7,c6de,c6ef,c6fb,c6e5,c6e6,c6db,c6e1,c6f4,c6dd,c6e2,c6f1,c6f6,c6fa,c6fc,c6ee,c6e0,c6f3,c6f2,c6f5,c6e7,c6ed,c6dc,c6e8,c6ea,c6e9,bbfc,c6f9,bca9,c6e3,c6fd,c6ec,ecf7,f1fd,e6eb,e1a8,e1aa,f5e8,ddbd,dead,e8e7,edac,dcce,dcf9,ddc2,dcbb,e3e0,d8bd,f7a2,d9b9,e9ca,e0d2,f2d3,f4eb,d8c1,eca5,e7f7,f7e8,e7f9,f2e0,dbdf,e8bd,dddd,edd3,e4bf,ecf3,eac8,e7b2,d8a2,bcbf,d9ca,c7d0,b4cc,c7da,b3d4,d6a8,edcb,c3bc,e6e2,f4e2,eda2,bcbc,b5d6,eafc,e5bd,d6a7,d6a6,bcc3,d7d5,b1c2,bbfb,cabe,f4ec,f5c1,b6ba,',
-	qia => ',c7a1,bfa8,c6fe,c7a2,f7c4,f1ca,ddd6,eedf,bfcd,eafc,f0e2,f6da,',
-	qian => ',c7b0,c7ae,c7a7,c7a3,c7b3,c7a9,c7b7,c7a6,c7b6,c7a5,c7a8,c7af,c7ac,c7b4,c7ab,c7b1,c7b8,cfcb,c7a4,c7b2,c7ad,c7b5,c7aa,e1a9,eed4,e5bd,f3e9,dee7,e5ba,d9bb,e3bb,e3a5,eda9,f2af,dccd,dda1,e7d7,d9dd,dcb7,dae4,ebc9,dce7,e8fd,eaf9,e5b9,c6e0,dbc9,d5af,e2e3,cbde,b8cc,e4b9,bda5,e4d5,bfb0,bdee,f4c7,ebec,b8cf,efb7,f0cf,f6b8,',
-	qiang => ',c7bf,c7b9,c7bd,c7c0,c7bb,c7ba,c7bc,c7be,bdab,f2de,f5c4,eaa8,f1df,e3de,ecc1,efea,efba,efcf,f4c7,e9c9,e6cd,dfdf,e8c7,eabf,cde3,f3e4,f5bc,',
-	qiao => ',c7c5,c7c6,c7c3,c7c9,c7cc,c7c2,bfc7,c7ca,c7cb,c7c4,c7ce,c7cf,c8b8,c7c7,c7c8,c7cd,c7c1,e9d4,dcf1,f5ce,edcd,e3be,dadb,f7b3,e3b8,e7d8,dabd,d8e4,cff7,b4e1,c9b3,eed5,d0c9,d3b8,eaeb,b8d0,a8eb,bdb9,d6af,cff5,dcfa,bdb6,f5d3,f5b4,efa2,bdbe,',
-	qie => ',c7d0,c7d2,c7d3,c7d4,c7d1,c6f6,dba7,f4f2,e3ab,efc6,e6aa,f3e6,e3bb,d9a4,eafc,dffe,e0a9,c6f5,e6bc,dcbd,b8c6,f9c6,e1af,ebe2,deaa,f6f8,',
-	qin => ',c7d7,c7d9,c7d6,c7da,c7dc,c7de,c7d8,c7db,c7df,c7dd,c7d5,dfc4,f1fb,f1e6,f4c0,dccb,e4da,e2db,e0ba,f2fb,e0df,deec,e9d5,efb7,b2dd,e9c8,bdfe,d8c9,dde8,dead,f1c6,f2a2,',
-	qing => ',c7eb,c7e1,c7e5,c7e0,c7e9,c7e7,c7e2,c7e3,c7ec,c7e6,c7ea,c7d7,c7e4,c7e8,e0f5,f6a5,e9d1,f3e4,dcdc,f2df,f7f4,f3c0,f6eb,ede0,f4ec,d9bb,bdc9,beab,caa4,',
-	qiong => ',c7ee,c7ed,f5bc,f1b7,daf6,f2cb,dce4,f6c6,f3cc,c5ac,becf,',
-	qiu => ',c7f3,c7f2,c7ef,c7f0,c7f6,b3f0,c7f1,c7f4,c7f5,b9ea,e9b1,f2c7,f4c3,f4dc,f2f8,dbcf,e5cf,d9b4,f2b0,eae4,f6fa,e1ec,e4d0,f7fc,e5d9,c7f8,cdc5,cbde,e3b0,e3b8,c2d9,b3ab,dcb4,dafe,eec5,d8b8,f0af,',
-	qu => ',c8a5,c8a1,c7f8,c8a2,c7fe,c7fa,c7f7,c8a4,c7fc,c7fd,c7f9,c7fb,c8a3,d0e7,f3bd,debe,ecee,dea1,ede1,dbbe,dab0,f0b6,e3d6,f4f0,f1b3,e1e9,f7f1,e8b3,ebac,eaef,f2d0,ebd4,f6c4,e1ab,dcc4,bee4,e7be,d7e9,c0af,e5e1,becf,f7b6,e6e3,d8ce,',
-	quan => ',c8ab,c8a8,c8b0,c8a6,c8ad,c8ae,c8aa,c8af,c8a7,c8ac,c8a9,eefd,f3dc,e7b9,dab9,e9fa,eeb0,f7dc,e3aa,f2e9,dcf5,f1be,fcdb,b3cb,d5e8,c5e2,b5ac,b4bf,f0d9,e1eb,',
-	que => ',c8b4,c8b1,c8b7,c8b8,c8b3,c8b5,c8b2,c8b6,e3da,e3d7,eda8,e0be,c7fc,dfab,c1d4,f4aa,c9d6,',
-	qun => ',c8ba,c8b9,f7e5,e5d2,b6dd,',
-	ra => ',',
-	ram => ',',
-	ran => ',c8be,c8bc,c8bb,c8bd,f7d7,dcdb,f2c5,dfab,',
-	rang => ',c8c3,c8c2,c8bf,c8c1,c8c0,f0a6,ecfc,cfe2,',
-	rao => ',c8c4,c8c6,c8c5,dce9,e8e3,e6ac,c6c4,e1b7,e7d4,',
-	re => ',c8c8,c8f4,c8c7,dff6,d9bc,e1db,',
-	ren => ',c8cb,c8ce,c8cc,c8cf,c8d0,c8ca,c8cd,c8d1,c8d2,c8c9,e2bf,e9ed,d8f0,dcf3,ddd8,f1c5,effe,a1b6,e4ed,aeb6,d8e9,',
-	ri => ',c8d5,dee2,',
-	rong => ',c8dd,c8de,c8da,c8dc,c8db,c8d9,c8d6,c8d8,c8df,c8d7,e9c5,e1f5,e1c9,ebc0,f2ee,e7c8,b8f4,cbcc,',
-	rou => ',c8e2,c8e0,c8e1,f4db,f5e5,f7b7,a7ac,',
-	ru => ',c8e7,c8eb,c8ea,c8e5,c8e3,c8e9,c8ec,c8e8,c8e4,c8e6,ddea,f1e0,efa8,e0e9,e7c8,e5a6,deb8,f2ac,e4e1,e4b2,e4c5,e3d4,c8e2,d0e8,',
-	rua => ',',
-	ruan => ',c8ed,c8ee,ebc3,e5a6,d0e8,',
-	rui => ',c8f0,c8ef,c8f1,eea3,dcc7,f2b8,e8c4,dea8,b6b6,c8c4,cbe7,c4c6,',
-	run => ',c8f3,c8f2,',
-	ruo => ',c8f4,c8f5,f3e8,d9bc,d7c8,c4e7,dcc7,',
-	sa => ',c8f6,c8f7,c8f8,eafd,d8ed,d8a6,ecaa,ebdb,e9df,a2c0,b2cc,',
-	saeng => ',',
-	sai => ',c8fb,c8f9,c8fa,cbbc,c8fc,e0e7,cbba,',
-	sal => ',',
-	san => ',c8fd,c9a2,c9a1,c8fe,e2cc,f4d6,eba7,f6b1,b2ce,d1bc,e1ea,e3df,',
-	sang => ',c9a3,c9a5,c9a4,f2aa,eddf,defa,',
-	sao => ',c9a8,c9a9,c9a6,c9a7,c9d2,dca3,f6fe,ebfd,e7d2,f0fe,c9da,afd4,efb2,e7d8,',
-	se => ',c9ab,c9ac,c9aa,c8fb,d8c4,efa4,f0a3,ddd5,dce9,c6fc,d7d5,c7be,eee9,efa1,',
-	sed => ',',
-	sei => ',d8c2,',
-	sen => ',c9ad,b2f4,a6c9,',
-	seng => ',c9ae,',
-	seo => ',',
-	seon => ',',
-	sha => ',c9b1,c9b3,c9b6,c9b4,c9b5,c9b0,c9b2,c9af,cfc3,c9b7,c9bc,e0c4,dffe,f6e8,f6ae,efa1,f0f0,f4c4,eafd,eca6,c3d2,adbd,c9e3,e7aa,c9de,',
-	shai => ',c9b9,c9b8,c9ab,f5a7,a2ba,',
-	shan => ',c9bd,c9c1,c9c0,c9c6,c9c8,c9bc,c9be,c9bf,b5a5,c9ba,b2f4,c9c4,d5a4,c9bb,b5a7,c9c5,c9c2,c9c7,c9c3,c9c9,e6d3,f3b5,dccf,ecf8,f5c7,dbb7,e4fa,f7ad,e6a9,d8df,e6f3,f0de,ebfe,daa8,eecc,f4ae,dbef,d9d9,efb2,e8cc,bfe5,c4aa,b5cb,b2fc,e1ea,dbc9,f7d4,',
-	shang => ',c9cf,c9cb,c9d0,c9cc,c9cd,c9ce,c9ca,ccc0,c9d1,ecd8,f5fc,e7b4,e9e4,dbf0,fbb3,',
-	shao => ',c9d9,c9d5,c9d3,c9da,c9d7,c9d2,c9d4,c9db,c9d8,c9dc,c9d6,d5d9,c7ca,dce6,dbbf,e4fb,f4b9,f2d9,f3e2,d4cf,d5d0,cbd1,b6e4,f3d4,e7af,e8bc,',
-	she => ',c9e7,c9e4,c9df,c9e8,c9e0,c9e3,c9e1,d5db,c9e6,c9de,c9e2,c9e5,c9dd,eca8,d8c7,eeb4,e2a6,f7ea,e4dc,d9dc,cab0,cede,bdde,b5fa,c4f4,f2d2,',
-	shen => ',c9ed,c9ec,c9ee,c9f4,c9f1,c9f5,c9f8,c9f6,c9f3,c9ea,c9f2,c9f0,c9eb,b2ce,c9e9,cab2,c9ef,c9f7,ddd8,f4d6,ddb7,dab7,dac5,eff2,e9a9,e4c9,f2d7,dfd3,ebcf,d0c5,a4df,ded3,f6ab,d5f0,',
-	sheng => ',c9f9,caa1,caa3,c9fa,c9fd,c9fe,caa4,caa2,caa5,c9fb,c9fc,b3cb,eac9,e4c5,edf2,f3cf,e1d3,d8a9,afd9,d6db,d0d5,bfeb,f5ab,b5e9,',
-	shi => ',cac7,cab9,caae,cab1,cac2,cad2,cad0,caaf,caa6,cad4,cab7,cabd,cab6,caad,cab8,cab0,caba,cabb,cabc,cbc6,d0ea,cabe,cabf,cac0,cac1,b3d7,cac3,cac4,cac5,cac6,cab2,d6b3,d6c5,cac8,cac9,caa7,caca,cacb,cacc,cacd,cace,cacf,caa8,cab3,cad1,cab4,cad3,cab5,caa9,caaa,caab,caac,f5b9,ddaa,dbf5,eee6,f3c2,f6e5,f6f5,eadb,e9f8,dde9,f3df,ecc2,dad6,dfb1,f5a7,f3a7,dff2,cbb5,cbc2,e5e8,f7cc,cbb9,d6ad,b8d2,b3aa,ecea,c9b8,d2ef,eac8,d6ab,c9e1,bad5,bac2,eee8,efa1,e2bb,e2c1,',
-	shou => ',cad6,cadc,cad5,cad7,cad8,cadd,cada,cade,cadb,caec,cad9,f4bc,e1f7,e7b7,dede,ccce,fdaa,',
-	shu => ',cae9,caf7,cafd,caec,cae4,cae1,cae5,caf4,caf8,caf5,caf6,caf1,caf2,caf3,cae7,caea,caeb,cadf,cae8,caf9,cafa,cafb,cafc,caed,cafe,cba1,cae0,caee,cae2,cae3,caef,caf0,cae6,e6ad,def3,eff8,e7a3,e3f0,eba8,ebf2,dbd3,ddc4,ecaf,e4f8,d9bf,d3e1,cadb,cbd4,c8a2,e6de,d6ec,e8cc,d1e4,f1e2,ddb1,deb4,d4a5,cdb8,d2b0,efed,b3fd,f0d6,e2e0,d8ad,',
-	shua => ',cba2,cba3,e0a7,cbf4,e4cc,d1a1,',
-	shuai => ',cba4,cba6,c2ca,cba7,cba5,f3b0,cbe7,',
-	shuan => ',cba8,cba9,e3c5,e4cc,a4c9,c7c4,f5df,',
-	shuang => ',cbab,cbaa,cbac,e3f1,e6d7,dce4,',
-	shui => ',cbae,cbad,cbaf,cbb0,cbb5,e7b5,e3df,',
-	shun => ',cbb3,cbb1,cbb2,cbb4,bfa1,e7dd,d1b2,e2fe,f9b1,',
-	shuo => ',cbb5,cafd,cbb6,cbb8,cbb7,def7,e5f9,e9c3,ddf4,eee5,e0ca,cbd4,abcb,dde5,d2a9,',
-	shw => ',d5db,',
-	si => ',cbc4,cbc0,cbbf,cbba,cbc6,cbbd,cbbb,cbbc,cbc2,cbbe,cbb9,cab3,cbc5,b2de,cbc1,cbc7,cbc3,cbc8,f1ea,e6e1,d9ee,f2cf,d8cb,e3e1,efc8,e3f4,f3d3,dfd0,f0b8,e6a6,dbcc,e7c1,eceb,e4f9,d9b9,d2d4,cca8,e1e3,cef6,b5b4,ecf4,f4e9,d2de,ddbe,eff4,e2c2,ece1,',
-	so => ',',
-	sol => ',',
-	song => ',cbcd,cbc9,cbca,cbce,cbcc,cbd0,cbcb,cbcf,f1b5,ddbf,e4c1,e3a4,e1d4,daa1,e1c2,e2ec,ebb3,efc8,',
-	sou => ',cbd2,cbd1,cbd3,cbd4,e0d5,e0b2,ecac,dbc5,deb4,efcb,e2c8,eea4,e4d1,f2f4,ebb7,d7e5,e4b3,',
-	su => ',cbd8,cbd9,cbdf,cbdc,cbde,cbd7,cbd5,cbe0,cbda,cbd6,cbf5,cbdd,cbdb,e3ba,f3f9,f6a2,f6d5,d9ed,e0bc,dad5,ddf8,e4b3,e0b2,dbb0,',
-	suan => ',cbe1,cbe3,cbe2,e2a1,d7ab,d1a1,',
-	sui => ',cbea,cbe6,cbe9,cbe4,cbeb,cbec,c4f2,cbe5,cbe8,cbe7,cbed,cbee,edf5,dac7,e5a1,e5e4,ecdd,ddb4,eea1,d5ad,b4e2,c9af,cbf2,d2c5,',
-	sun => ',cbef,cbf0,cbf1,e9be,dda5,e2b8,e1f8,f6c0,caf7,f5d0,b2cd,',
-	suo => ',cbf9,cbf5,cbf8,cbf6,cbf7,cbf3,cbf2,c9af,cbf4,eafd,edfc,e0ca,dfef,e8f8,e0c2,e6b6,f4c8,d0a9,cbea,bbb3,c9b3,e0ce,deab,cba5,e5d2,bbf4,',
-	ta => ',cbfb,cbfd,cbfc,cca4,cbfe,cbfa,cdd8,cca1,cca2,cca3,e4e2,f5c1,f7a3,edb3,e9bd,e4f0,e5dd,eee8,e3cb,e0aa,ccab,b4ee,f8ca,adaa,b4ef,f7b2,',
-	tae => ',',
-	tai => ',ccab,cca7,cca8,ccac,cca5,cca6,cca9,ccaa,ccad,ecc6,ebc4,f5cc,dfbe,f6d8,eed1,deb7,dba2,e6e6,b4f3,c4dc,dab1,',
-	tan => ',ccb8,ccbe,ccbd,ccb2,b5af,ccbc,ccaf,ccb6,ccb0,ccb3,ccb5,ccba,ccb9,ccbf,ccb1,ccb7,ccae,ccb4,ccbb,eee3,dbb0,efe2,efc4,f1fb,e5a3,eabc,ecfe,b5ab,b5a7,c9f2,b5ad,d5bf,a9d1,d7ad,b5a8,ccf2,dda1,dea6,eae6,',
-	tang => ',ccc9,cccb,ccc3,ccc7,ccc0,ccc1,cccc,ccc8,ccca,ccc6,ccc2,ccc4,ccc5,f3ab,e9cc,f4ca,f5b1,e8a9,efdb,d9ce,e2bc,e4e7,f1ed,e0fb,efa6,f3a5,c9b5,dcc0,b5b4,eef5,e3d1,',
-	tao => ',ccd7,cccd,ccd3,ccd2,ccd6,ccd4,ccce,cccf,ccd5,ccd0,ccd1,d8bb,e4ac,ece2,dffb,f7d2,e8ba,dfb6,fcd2,ccf4,b3ef,b3f1,ccf8,',
-	teng => ',ccdb,ccda,ccd9,ccdc,ebf8,',
-	ti => ',cce1,cce6,cce5,cce2,ccdf,cce3,ccea,ccde,ccdd,cce0,cce4,cce9,cce7,cce8,cceb,f5ae,f0c3,e7b0,e7be,d9c3,f1d3,e5d1,dce8,e3a9,b5dc,f8d5,cac7,f5e9,b5d2,edfb,cbc1,daae,dad0,d4be,b4ef,cefd,ded0,',
-	tian => ',ccec,ccef,cced,ccee,ccf0,ccf2,ccf1,ccf3,b5e8,dedd,eee4,e3d9,e3c3,e9e5,eeb1,ccb5,e4cd,e0c1,e8e9,d5b4,b5e1,b5e9,eeae,c9bb,b2cf,f2c5,efbb,d5f2,b5df,',
-	tiao => ',ccf5,ccf8,ccf4,b5f7,ccf6,ccf7,f6b6,f3d4,ecf6,f2e8,f7d8,d9ac,f1bb,f6e6,dce6,f4d0,dffa,d2a6,ccd2,d4b5,b3ed,b3ac,f5d6,efa2,',
-	tie => ',ccfa,ccf9,ccfb,ddc6,f7d1,d5bc,c2c2,b5fb,efb0,',
-	ting => ',ccfd,cda3,cda6,ccfc,cda4,cda7,cda5,cda2,ccfe,cda1,eeae,dcf0,eefa,dde3,e6c3,f2d1,e8e8,f6aa,b5ec,',
-	tol => ',',
-	ton => ',',
-	tong => ',cdac,cda8,cdb4,cdad,cdb0,cdb2,cdb1,cdb3,cdaf,cdae,cda9,cdab,b6b2,b6b1,cdaa,e4fc,dced,d9da,edc5,e1bc,e2fa,d9a1,e0cc,dbed,a3d9,e4d3,d4b6,d5aa,edcf,f4be,d6d8,d8e7,',
-	tou => ',cdb7,cdb5,cdb8,cdb6,eed7,f7bb,d9ef,d3e4,d0e5,dacd,dacf,b6ba,',
-	tu => ',cdc1,cdbc,cdc3,cdbf,cdc2,cdba,cdbb,cdbd,cdb9,cdbe,cdc0,f5a9,ddb1,eeca,ddcb,dca2,d3e0,beb6,a4ac,b5f8,',
-	tuan => ',cdc5,cdc4,eeb6,ded2,e5e8,bbb6,cbb0,f0c8,',
-	tui => ',cdc8,cdc6,cdcb,cdca,cdc7,cdc9,ecd5,dfaf,b5dc,fab6,cbb0,cdd1,d7b7,c0a1,',
-	tun => ',cdcc,cdcd,cdca,cdce,b6da,d9db,e2bd,ebe0,ead5,b6d6,cee2,e3e7,e2ec,f5ae,f1b8,b4bf,ebc6,d6f0,',
-	tuo => ',cdcf,cdd1,cdd0,cdd7,cdd4,cdd8,cdd5,cdd6,cdd9,cdd2,cdd3,c6c7,e9d2,e8d8,f5c9,d8b1,dbe7,d9a2,e2d5,f5a2,e8de,f6be,e3fb,f3ea,edc8,cbfb,b5cb,b1b6,fab3,f6b3,cbb0,f4aa,c9df,cbb5,e5c6,eee8,cbe5,b6e6,',
-	uu => ',',
-	wa => ',cdda,cddf,cddc,cddb,cdde,cddd,b0bc,cde0,d8f4,e6b4,ebf0,cedb,d0ac,f6d9,',
-	wai => ',cde2,cde1,e1cb,dfc3,b7d8,',
-	wan => ',cdea,cdf2,cded,cdeb,cde6,cde4,cdec,cde5,cde8,cdf3,cdf0,cdf1,cde9,cde7,cde3,cdef,c3e4,cdee,c2fb,ddb8,ebe4,f2ea,e7ba,dcb9,e7fe,e6fd,d8e0,eeb5,ddd2,c3e2,b9d8,d4b0,ebc3,b3ac,f3ee,dcc8,b9e1,',
-	wang => ',cdfb,cdfc,cdf5,cdf9,cdf8,cdf6,cdf7,cdfa,cdf4,cdfd,c3a2,e9fe,f7cd,e3af,d8e8,c7bf,efde,bbca,',
-	wei => ',ceaa,cebb,ceb4,cea7,ceb9,ceb8,cea2,ceb6,ceb2,ceb1,cdfe,ceb0,cec0,cea3,cea5,ceaf,ceba,cea8,ceac,ceb7,cea9,cea4,cea1,ceb5,cebd,cebe,ceab,ceb3,cebf,cea6,ceae,cead,cebc,d2c5,ddda,e0f8,f4ba,f6db,e6b8,e5d4,e3c7,daf1,e3ed,e7e2,e4b6,e1a1,e1cb,daf3,dac3,e4a2,d9cb,e2ab,e2ac,e1cd,eaa6,e8b8,ecbf,ecd0,dbd7,deb1,f0f4,d9c1,b0df,e0ed,fab5,bff9,a5d3,d0bb,a3ec,e0e2,a2aa,edf5,c1a2,dccf,ddb4,ddcc,dae3,f6bf,',
-	wen => ',ceca,cec4,cec5,cec8,cec2,cec7,cec3,cec6,cec1,cec9,e3eb,e3d3,d8d8,f6a9,e8b7,c3e2,c3e4,ece3,c3c1,e9e2,b1ab,d1db,f3cb,d4cc,cfde,e8b9,d9ef,',
-	weng => ',cecc,cecb,cecd,deb3,ddee,dbd5,e5ae,c3c9,',
-	wie => ',',
-	wo => ',ced2,ced5,ced1,ced4,cece,ced6,cecf,ced0,ced3,d9c1,e1a2,f6bb,ebbf,ddab,e0b8,e4d7,edd2,e0c9,dbf6,e5d8,e6c1,e8bb,cec1,',
-	wu => ',cede,cee5,cedd,ceef,cee8,ceed,cef3,cee6,cedb,cef2,cef0,ced9,cee4,ceec,cef1,ced8,cee9,cee2,cee7,cee1,ceea,ceda,cee3,b6f1,cedc,cedf,ced7,ceee,cee0,ceeb,e5fc,f2da,eaf5,e5bb,d8a3,e2e4,dae3,daf9,e2e8,e6f0,ecb6,f6c8,d8f5,e8bb,f0cd,e6c4,e5c3,f0ed,dccc,ecc9,e2d0,f0c4,f7f9,e4b4,dbd8,cdf6,d8ee,b0d9,e0b8,dbeb,d3f9,ecb8,c4b8,e4d7,caab,eea6,f3cb,c4aa,f6b9,dfed,f2fa,',
-	xi => ',cef7,cfb4,cfb8,cefc,cfb7,cfb5,cfb2,cfaf,cfa1,cfaa,cfa8,cefd,cfa5,cfa2,cfae,cfa7,cfb0,cefb,cfa6,cfa4,cef9,cef5,cfa3,cfad,cefe,cefa,cef4,cfb1,cef8,cfb3,cfa9,c0b0,cef6,cfb6,c6dc,cfab,cfac,f2e1,dec9,e4bb,dddf,e2be,e5ef,e7f4,e6d2,ecf9,d9e2,f4e2,f1b6,ecfb,d9d2,e4c0,ddfb,f4b8,f5e8,f5b5,eca4,f0aa,f3ac,f4cb,dce7,e1e3,daf4,dff1,ead8,f3a3,eca8,e9d8,e3d2,f4d1,ece4,eaea,ddbe,f7fb,f1d3,f4aa,d2e5,dfd7,dfd2,c1ca,a9cb,f4bc,e3c8,caaa,deaa,c1d4,d0b2,f2e6,f1de,dac0,dad6,dba7,b4ed,c8fa,dbad,',
-	xia => ',cfc2,cfc5,cfc4,cfbf,cfba,cfb9,cfbc,cfc1,cfbb,cfc0,cfbd,cfc3,cfbe,bba3,e1f2,e8d4,dfc8,f7ef,edcc,f3c1,e5da,e8a6,bcd9,add1,bddf,eae0,c4e0,e1ac,b3d1,eca6,eba5,e4a4,f0fd,b8f8,dde7,',
-	xian => ',cfc8,cfdf,cfd8,cfd6,cfd4,cfc6,cfd0,cfd7,cfd3,cfdd,cfd5,cfca,cfd2,cfce,cfda,cfde,cfcc,cfc7,cfc9,cfd9,cfcd,cfcb,cfdc,cfcf,cfd1,cfdb,cfb3,bcfb,dcc8,deba,e1ad,f0ef,ddb2,f4cc,e6b5,f2b9,e1fd,ecec,d9fe,ecde,f5d0,f5d1,f5a3,e5df,ebaf,f0c2,f3da,f6b1,e6a1,e6a9,fce5,fce3,a6ba,b4cc,c0c8,f7cf,bde5,f3aa,caa1,d2d3,bcee,f3c8,bce7,d0b2,ddfc,d0f9,eecc,efc4,e3db,ede9,',
-	xiang => ',cfeb,cff2,cff3,cfee,cfec,cfe3,cfe7,cfe0,cff1,cfe4,cfef,cfed,cfe2,cfe1,bdb5,cfe8,cfe9,cff0,cfea,cfe6,cfe5,f7cf,f6df,e6f8,f3ad,e2d4,dcbc,e2c3,e7bd,ddd9,bae0,ddc8,d6d1,f4ad,',
-	xiao => ',d0a1,d0a6,cffb,cff7,cffa,cff4,d0a7,cffc,cffe,d0a4,d0a2,cff5,cffd,d0a5,cff6,cff8,cff9,d0a3,f7cc,f2d9,e6e7,e8d5,dfd8,e1c5,f3e3,e4ec,e5d0,e8c9,e7af,f3ef,d9ae,c7ce,aedb,c5ba,ebba,dfdd,c9da,dfeb,bba3,cce6,c4d3,c9d3,cbd1,c9d2,d8b3,bdc6,bdca,bdba,c9d6,dcfa,bdcf,bdbe,c9a7,',
-	xie => ',d0b4,d0a9,d0ac,d0aa,d0b1,d1aa,d0bb,d0b6,d0ae,d0bc,d0b7,d0ba,d0b8,d0b9,d0a8,d0b0,d0ad,d0b5,d0b3,d0ab,d0af,d0b2,bde2,c6f5,d2b6,e7a5,f2a1,e7d3,e2b3,e9bf,e2dd,dfa2,d9c9,e5ac,e4cd,d9f4,e9c7,e5e2,deaf,f5f3,dbc6,dbc4,c3df,f1e0,b6bd,dfa1,a4bd,eca8,a2d6,b8c8,edf5,d2ae,b5fd,d4a5,f5cd,e5c8,daf4,d2b3,f7ba,f6d9,c0a3,',
-	xin => ',d0c2,d0c4,d0c0,d0c5,d0be,d0bd,d0bf,d0c1,d1b0,d0c6,d0c3,eca7,d8b6,ddb7,efe2,dcb0,f6ce,eabf,d0cb,bfee,',
-	xing => ',d0d4,d0d0,d0cd,d0ce,d0c7,d0d1,d0d5,d0c8,d0cc,d0d3,d0cb,d0d2,d0cf,d0c9,d0ca,caa1,edca,e3ac,dcfe,daea,dfa9,dcf4,f5ac,d1d0,caa4,e2bc,',
-	xiong => ',d0d8,d0db,d0d7,d0d6,d0dc,d0da,d0d9,dcba,e9cf,',
-	xiu => ',d0de,d0e2,d0e5,d0dd,d0df,cbde,d0e1,d0e4,d0e3,d0e0,b3f4,e4e5,f5f7,e2ca,f7db,f0bc,dfdd,e2d3,e1b6,f2ec,e3ab,ddac,',
-	xu => ',d0ed,d0eb,d0e8,d0e9,d0ea,d0ee,d0f8,d0f2,d0f0,d0f3,d0f5,d0f6,d0e7,d0ec,d0f1,d0f7,d3f5,d0ef,d0f4,d0e6,f4da,dbc3,e8f2,e4b0,dea3,e7ef,dbd7,e4aa,f1e3,f5af,dabc,e4d3,ece3,edec,edb9,d3da,add0,c5d3,c5bb,e9ba,f4df,c4d0,bde3,e2f0,a2ea,fdeb,ebc9,d3f3,b9e6,daa9,d0b0,f6a7,d9e5,',
-	xuan => ',d1a1,d0fc,d0fd,d0fe,d0fb,d0fa,d0f9,d1a4,d1a3,d1a2,c8af,ead1,e9b8,d9d8,e4d6,e4f6,e3f9,eee7,e8af,ecd3,eddb,efe0,ecc5,deef,dde6,f0e7,dace,d8a8,d7ab,dfa7,c5af,e4ad,e4b8,beee,e2cd,',
-	xue => ',d1a7,d1a9,d1aa,d1a5,d1a8,cff7,d1a6,f5bd,e0e5,f7a8,edb4,bef6,c9cf,f8e0,c8b2,fcaf,daca,',
-	xun => ',d1b0,d1b6,d1ac,d1b5,d1ad,d1b3,d1ae,d1b2,d1b8,d1b1,d1b4,d1b7,d1ab,bbe7,d1af,bfa3,d9e3,f6e0,e4b1,dbf7,e2fe,e2b4,f5b8,e4ad,dba8,e1be,dea6,deb9,dcf7,f1bf,ead6,e1df,aecb,e3aa,cbf3,bdc8,f7cc,e2a1,d1a4,dda1,e5d2,b6dd,f6ce,e5e6,',
-	ya => ',d1bd,d1b9,d1c0,d1ba,d1bf,d1bc,d4fe,d1c6,d1c7,d1c4,d1be,d1c5,d1c3,d1bb,d1c8,d1c1,dbeb,f1e2,edbc,e7f0,e8e2,edfd,e6ab,f0e9,e1ac,ebb2,d8f3,e5c2,deeb,d1e1,dfb9,cee1,e2d3,e9d4,e2d0,ebaa,edd9,e9fb,d0b0,d5a2,d1d5,f0c6,d1c2,',
-	yan => ',d1db,d1cc,d1d8,d1ce,d1d4,d1dd,d1cf,d1ca,d1cd,d1d7,d1da,d1e1,d1e7,d1d2,d1d0,d1d3,d1df,d1e9,d1de,d2f3,d1cb,d1e2,d1e3,d1e4,d1e5,d1e6,d1d1,d1dc,d1e8,d1e0,d1d5,d1d6,c7a6,d1c9,d1d9,dcbe,d8c9,e3d5,ddce,f7ca,e7fc,e4d9,eccd,d8cd,f3db,ebe7,d9f0,d8df,f7d0,e2fb,eebb,e9dc,e4ce,d9c8,dadd,ebd9,eacc,e3c6,d9b2,dbb1,f5a6,dbb3,e5fb,f7fa,e1c3,dae7,e6cc,b5ab,b0b3,b3a7,d9db,efdb,cccf,d1b2,b9e3,e2d6,deee,ebb3,e4a6,a1cf,feb5,add2,b2ba,ddaa,cfdb,ddb2,c4e8,f1fb,daa5,f5c2,d5e2,efc4,cfd5,d8cc,',
-	yang => ',d1f9,d1f8,d1f2,d1f3,d1f6,d1ef,d1ed,d1f5,d1f7,d1ee,d1fa,d1f4,d1ea,d1eb,d1ec,d1f0,d1f1,ecbe,eda6,e1e0,f7b1,e3f3,f2d5,ecc8,e2f3,b0ba,d3b3,acab,d3a2,cfea,',
-	yao => ',d2aa,d2a1,d2a9,d2a7,d1fc,d2a4,d2a8,d1fb,d1fd,d2a5,d2a3,d2a6,d1fe,d2ab,d2a2,d4bf,bdc4,ccd5,d4bc,c5b1,e7f2,d8b2,f7a5,f0ce,e9f7,d8b3,dfba,efa2,e7db,e1ca,ebc8,ead7,e1e6,e8c3,f1ba,c3b4,c0d6,fcc4,f2e6,d3d7,a5e4,acd2,f4e5,faaa,d3c9,f4ed,dce9,e6f1,',
-	ye => ',d2b2,d2b9,d2b5,d2b0,d2b6,d2af,d2b3,d2ba,d2b4,d2b8,d2b1,d2ad,d2ae,d1ca,d2b7,d2ac,d0b0,dacb,dafe,eaca,ecc7,dede,eef4,d8cc,bac8,ecca,adc9,d7a7,c5de,eede,d0b1,e4a6,cdbf,c4f4,ddb1,e2c5,',
-	yi => ',d2bb,d2d4,d2d1,d2da,d2c2,d2c6,d2c0,d2d7,d2bd,d2d2,d2c7,d2e0,d2ce,d2e6,d2d0,d2cc,d2ed,d2eb,d2c1,c9df,d2c5,cab3,b0ac,d2c8,d2c9,d2ca,d2cb,d2ec,d2cd,d2bc,d2cf,d2ea,d2be,d2bf,d2d3,d2ee,d2d5,d2d6,d2ef,d2d8,b6ea,d2d9,ceb2,d2db,d2dc,d2dd,d2de,d2df,d2c3,d2e1,d2e2,d2e3,d2e4,d2e5,d2c4,d2e7,d2e8,d2e9,e2f8,f0ea,efd7,f1af,e2f9,e6e4,ecbd,ecda,f4fd,f1b4,eca5,e1bb,dbdd,e9ec,e0c9,dfd7,dcb2,e0e6,d8e6,dab1,e2c2,e4f4,d8fd,dfde,f0f9,e2a2,edf4,f4e0,dec4,dcd3,dce8,d8ee,d9ab,eadd,eec6,e7cb,e5c6,d8d7,e3a8,f7f0,f4e8,dfae,dec8,f2e6,dbfc,deda,e1da,deb2,dfbd,e9f3,efee,f4af,d8af,d2b2,ccd9,d3a1,accc,a8cc,c0cc,d2ad,dbd9,dbe7,dfcf,a6ca,a7c6,bca7,cbfc,c9e4,c6e9,cbc8,b5a1,d4f1,dee1,edde,beca,adc6,d6ce,d0b9,aae4,cee4,cbd1,eccd,c1ce,eaf7,f6aa,b8ed,edd2,e7a5,e7b2,ceac,cfdb,f1c2,f1c7,dac0,dad6,b5fc,cacd,eee8,c1a5,eff4,f7ee,',
-	yin => ',d2f2,d2fd,d3a1,d2f8,d2f4,d2fb,d2f5,d2fe,d2f1,d2f7,d2fc,d2fa,d2f0,d2f9,d2f3,d2f6,d1cc,dca7,dbb4,e0b3,e2b9,d8b7,f6b8,dfc5,dbdf,e1fe,dbf3,f6af,f2be,ebb3,eef7,f1bf,f1ab,e4a6,dce1,b5d6,f8cc,bfd1,f8d2,b1d2,d2ca,e4b1,f4cc,ecaa,dccb,d1d4,',
-	ying => ',d3a6,d3b2,d3b0,d3aa,d3ad,d3b3,d3ac,d3ae,d3a5,d3a2,d3b1,d3a8,d3af,d3a4,d3a3,d3a7,d3ab,d3a9,ddd3,e9ba,ddf6,f1a8,dce3,f0d0,ebf4,ddba,e8ac,dbab,e0d3,defc,e7f8,e4de,e4eb,d9f8,f3bf,e5ad,e2df,dcfe,f2a3,dfec,e0d1,beb0,b5e9,c9fe,b3d1,',
-	yo => ',d3b4,d3fd,e0a1,',
-	yong => ',d3c3,d3bf,d3c0,d3b5,d3bc,d3c2,d3ba,d3bd,d3be,d3b6,d3bb,d3b8,d3b9,d3b7,d3c1,dbd5,e3bc,d9b8,dcad,f7ab,e7df,e0af,f0ae,f7d3,efde,a3c8,f4a7,deb3,d3f6,',
-	you => ',d3d0,d3d6,d3c9,d3d2,d3cd,d3ce,d3d7,d3c5,d3d1,d3cb,d3c7,d3c8,d3cc,d3d5,d3c6,d3ca,d3cf,d3d3,d3d4,d3c4,f0e0,d8fc,f2c4,ddac,f6cf,d8d5,f7ee,ddb5,e9e0,f2ca,e5b6,ebbb,e0f3,e8d6,f2f6,ddaf,f7f8,eef0,f2f8,f4ed,dfcf,d9a7,dccc,a6db,eab0,decc,eec8,deed,c7f6,fbaa,f1fa,d0e2,',
-	yu => ',d3eb,d3da,d3fb,d3e3,d3ea,d3e0,d3f6,d3ef,d3fa,d3fc,d3f1,d3e6,d3e8,d3fe,d3fd,d3de,d3f0,d3dd,d3e9,d3d9,d3df,d3ec,d3ed,d3ee,d3d8,d3e1,d3e2,d3f2,d3f3,d3f4,b9c8,d3f5,d3db,d3f7,d3f8,d3f9,d3e4,d6e0,d3e5,cebe,d3dc,d3e7,d4a1,d4a2,d4a3,d4a4,d4a5,d4a6,ceb5,e5fd,e1ce,f6a7,e2c5,e3d0,f1be,f0c1,e6a5,deed,f1c1,eaec,f4a7,f4a8,f6b9,ddf7,eccf,eeda,dac4,e6fa,ecb6,f3c4,e8a4,d8ae,edb2,eca3,d9b6,d8f1,e0f4,f0d6,e2d7,eac5,ddc7,f0f5,dacd,e5f7,e0f6,f0f6,ecd9,e2c0,d8b9,ecdb,ebe9,e1fc,ddd2,f2e2,f2f5,bff7,c7ce,e1e0,e0af,e0de,a5cf,a6b0,e4cd,e1c8,b0c3,b5bb,ded6,f9ea,e8f2,fcce,cedb,e3e9,cbb0,ecd0,a2aa,cdf5,ebf2,cae6,d4b7,ddce,f2dc,d1c3,e3d5,edb1,',
-	yuan => ',d4b6,d4b1,d4aa,d4ba,d4b2,d4ad,d4b8,d4b0,d4ae,d4b3,d4b9,d4a9,d4b4,d4b5,d4ac,d4a8,d4b7,d4ab,d4a7,d4af,e0f7,f6bd,e9da,e6c2,ebbc,edf3,f0b0,def2,dcbe,e3e4,e8a5,f3a2,f3ee,dcab,dbf9,d3d4,d1ca,f5cd,adbe,b4e4,b4a9,c8ee,d4c9,',
-	yue => ',d4c2,d4bd,d4bc,d4be,d4c4,c0d6,d4c0,d4c3,d4bb,cbb5,d4c1,d4bf,e5ae,eee1,ebbe,d9df,e8dd,e9d0,dfdc,e0ee,bfe9,e5f9,f5cb,d2a9,cdc9,f3b6,f5c8,eee5,c8f1,',
-	yun => ',d4c6,d4cb,d4ce,d4ca,d4c8,d4cf,d4c9,d4d0,d4c5,d4cc,d4cd,d4c7,d4b1,ebb5,e3a2,e3b3,dba9,dcbf,f3de,e8b9,eac0,e1f1,e9e6,e7a1,ecd9,e7be,e6c1,cebe,d2fc,d4b9,e9ce,c2ab,cec1,b6dc,d4b7,ddd2,',
-	za => ',d4d3,d4d2,d5a6,d4d1,d4fa,d4db,dfc6,ded9,dffd,b9e0,a3b4,d9e1,',
-	zad => ',',
-	zai => ',d4da,d4d9,d4d6,d4d8,d4d4,d4d7,d4d5,e7de,e1cc,d7d0,b2c5,fcb2,',
-	zan => ',d4db,d4dd,d4dc,d4de,f4a2,f4f5,f4d8,e8b6,ded9,eac3,f6c9,fde4,b9e4,a3ad,',
-	zang => ',d4e0,d4e1,d4df,b2d8,deca,eab0,e6e0,e3de,b3c1,',
-	zao => ',d4e7,d4ec,d4e2,d4e3,d4ee,d4ef,d4e6,d4e4,d4ea,d4e5,d4ed,d4eb,d4e8,d4e9,dff0,b2db,afad,bdd1,e7d2,e7d8,b2dd,',
-	ze => ',d4f2,d4f0,d4f1,d4f3,d5a6,b2e0,f3e5,f4b7,e0fd,e5c5,dff5,d8c6,eabe,f3d0,d8d3,b2de,beb4,d7f5,f0a2,dad8,',
-	zei => ',d4f4,f6ea,',
-	zen => ',d4f5,dada,d9d4,cbd7,',
-	zeng => ',d4f6,d4f9,d4f7,d4f8,d7db,e7d5,eec0,eab5,efad,e5ad,',
-	zha => ',d4fa,d5a8,d4fc,d5a2,d5a3,d5a5,d5a7,d4fe,d5a9,d5a1,d4fd,c0af,b2e9,d5a4,d5a6,edc4,f0e4,dfb8,dfee,e9ab,e2aa,f2c6,deea,e0a9,d7f5,dfe5,f7fe,d4b2,b6df,e2f4,b7b2,cfe4,a3ae,f3d0,ebfa,dcda,f6f8,f6b4,e2c7,d4fb,',
-	zhai => ',d5aa,d5ad,d5ae,d5ab,d5af,d4f1,b5d4,d5ac,b2e0,bcc0,edce,f1a9,e3b6,c8b2,b9b4,c3f3,e5ba,ebfa,d4f0,e6e6,',
-	zhan => ',d5be,d5bc,d5bd,d5b5,d5b4,d5b3,d5b1,d5b9,d5bb,d5b2,b2fc,d5ba,d5bf,d5c0,d5b6,d5b7,d5b8,d5b0,dade,def8,ecb9,d8e4,d5e5,a4ac,ccbb,c7ab,f5f0,f5b4,e6f6,',
-	zhang => ',d5c5,d5c2,b3a4,d5ca,d5cc,d5c9,d5c6,d5c7,d5cb,d5c1,d5c8,d5c3,d5c4,d5cd,d5ce,d5cf,d8eb,e6d1,e1a4,dbb5,e8b0,e1d6,e2af,f3af,b3d0,',
-	zhao => ',d5d2,d7c5,d5d5,d5d0,d5d6,d7a6,d5d7,b3af,d5d1,d5d3,d5d8,b3b0,d5d9,d5d4,e8fe,dffa,eec8,f3c9,daaf,edea,ccd2,c4d7,e5aa,d6f8,d4e9,',
-	zhe => ',d7c5,d5e2,d5df,d5db,d5da,d5dd,d5dc,d5e1,d5e0,d5de,d5e3,e8cf,e9fc,f4f7,dfa1,f0d1,eddd,f1de,f2d8,dad8,d8b1,b4e0,f8e0,b3b6,abca,c9e3,b3e2,dec7,c4f4,f1d2,e9f3,daee,f0ba,d6f8,',
-	zhen => ',d5e6,d5f3,d5f2,d5eb,d5f0,d5ed,d5f1,d5e5,d5e4,d5ee,d5ef,d5e7,d5e8,d5e9,d5ea,d5ec,e7c7,dde8,ecf5,f3f0,e9f4,e9bb,f0a1,eae2,ebde,f0b2,ebd3,e4a5,e8e5,eeb3,dbda,e9a9,c9b4,bddb,ccee,c9f7,eaac,e4da,b5e1,d8aa,b3c3,f6df,b6a6,d6a1,',
-	zheng => ',d5fd,d5fb,d5f6,d5f9,d5f5,d5f7,d5fa,d6a4,d6a2,d6a3,d5fc,b6a1,d5f4,d5f8,d5fe,e1bf,eedb,efa3,f3dd,daba,e1e7,f6eb,d8a9,d8f6,b3d0,d5b3,d6b9,eeae,eeaa,cccb,d6a1,',
-	zhi => ',d6bb,d6ae,d6b1,d6aa,d6c6,d6b8,d6bd,d6a7,d6a5,d6a6,d6c9,d6a8,d6a9,d6ca,d6ab,d6ac,d6ad,d6cb,d6af,d6b0,d6cc,d6b2,b5d6,d6b3,d6b4,d6b5,d6b6,d6b7,d6cd,d6b9,d6ba,d6ce,d6bc,d6cf,d6be,d6bf,d6c0,d6c1,d6c2,d6c3,d6c4,cab6,d6c5,cacf,d6c7,d6c8,e0f9,defd,ede9,e8e4,e8d7,e9f2,e2e5,eced,f2ce,ebf9,f6a3,dba4,e8d9,e5e9,dcc6,ecf3,e5eb,f0ba,f4ea,f5d9,ebd5,e6ef,e9f9,f0eb,daec,f5dc,eff4,dbfa,eade,d8b4,f5a5,f5f4,f5c5,e8ce,bcbf,b0a3,b6e0,c0ca,d5e1,e7ca,cdd8,f2ea,f1d4,d8b5,c3aa,cabe,c6ee,bbfd,eac8,b3d9,dbaa,ccfa,f0af,e2ba,',
-	zhong => ',d6d0,d6d8,d6d6,d6d3,d6d7,d6da,d6d5,d6d1,d6d2,d6d9,d6d4,f5e0,f4b1,f3ae,eff1,daa3,e2ec,e4fc,f0af,cdaf,f4a9,b6ad,f2bc,e2ba,',
-	zhou => ',d6dc,d6de,d6e5,d6e0,d6dd,d6e1,d6db,d6e7,d6e8,d6e6,d6df,d6e2,d6e3,d6e4,f4ed,ebd0,e6fb,dda7,dffa,edd8,e7a7,f4a6,e6a8,f4fc,c6d9,fad9,d7c4,b5e0,b8ae,c5c5,e8d6,b9d7,f6ab,d7a3,f4b6,dac1,b5f7,d6f0,d3cb,e6e3,e5f7,',
-	zhu => ',d7a1,d6f7,d6ed,d6f1,d6ea,d6f3,d6fe,d6fc,d6fd,d6f6,d6f4,d7a2,d7a3,d7a4,caf4,caf5,d6e9,d6f5,d6eb,d6ec,d6f9,d6ee,d6ef,d6f0,d6fa,d6f2,d6fb,e4f3,e4a8,d8f9,f0f1,f4e3,dcef,dcd1,e9cd,f4b6,e8cc,f3e7,ecc4,d9aa,eef9,f0e6,e4be,f1d2,f5ee,f7e6,dba5,e9c6,f3c3,d3e8,c4fe,adca,bdb6,f4b3,c4fb,c7e8,c5a2,e4f8,d7c2,f2c4,b6ba,d7e8,b3fd,e6e3,d6f8,d8bc,',
-	zhua => ',d7a5,d7a6,cece,',
-	zhuai => ',d7a7,d7aa,c5b1,e0dc,',
-	zhuan => ',d7aa,d7a8,d7a9,d7ac,b4ab,d7ab,d7ad,f2a7,e2cd,dff9,e3e7,ded2,bbcd,c0ac,',
-	zhuang => ',d7b0,d7b2,d7af,d7b3,d7ae,d7b4,b4b1,d7b1,d9d7,deca,edb0,e3dc,e1e3,eeaa,f4be,b8d3,',
-	zhui => ',d7b7,d7b9,d7ba,d7b6,d7b8,d7b5,e6ed,e3b7,e7c4,f6bf,b4b9,dcb4,a7e9,d6c2,ddc8,cbed,',
-	zhun => ',d7bc,d7bb,cdcd,ebc6,f1b8,b4be,caae,edef,b4bf,ebd3,e2bd,',
-	zhuo => ',d7bd,d7c0,d7c5,d7c4,d7be,d7c6,d7c7,d7bf,d7c1,bdc9,d7c2,d7c3,dfaa,eccc,e5aa,dac2,e4b7,e4c3,d9be,efed,ecfa,edbd,c9d7,e0a8,c1b6,ace8,f5c4,e6aa,f3e7,ebc6,dea9,f5c0,f5d6,f5ee,e8bc,d6f8,',
-	zi => ',d7d6,d7d4,d7d3,d7cf,d7d1,d7ca,d7cb,d6a8,d7d2,d7d0,d7c8,d7c9,d7ce,d7d5,d7cc,d7cd,f3ca,f4d2,f6b7,eff6,eda7,dad1,f4f4,e7bb,e8f7,f6f6,efc5,e6dc,f1e8,f5fe,f7da,eadf,dceb,f6a4,e1d1,edf6,e6a2,eaa2,cac2,e8df,b4ce,bcab,e7de,b4c3,d4d8,d0bf,c6eb,',
-	zo => ',',
-	zong => ',d7dc,d7dd,d7da,d7d8,d7db,d7d9,d7d7,d9cc,f4d5,e8c8,ebea,',
-	zou => ',d7df,d7e1,d7e0,d7de,f6ed,dbb8,daee,e6e3,dac1,d7e5,b0e9,a8b9,e5c1,',
-	zu => ',d7e9,d7e5,d7e3,d7e8,d7e2,d7e6,d7e7,ddcf,efdf,d7e4,d9de,dffd,e0d2,e1de,bcbe,dab4,dcda,f4f5,f5ed,e6e0,',
-	zuan => ',d7ea,d7eb,d7ac,e7da,f5f2,dfac,b4e9,d4dc,e7ba,',
-	zui => ',d7ee,d7ec,d7ed,d7ef,b6d1,bed7,f5fe,dea9,b4dd,b4e9,fbad,f4c8,',
-	zun => ',d7f0,d7f1,f7ae,dfa4,e9d7,b5ec,b6d7,',
-	zuo => ',d7f6,d7f7,d7f8,d7f3,d7f9,d7f2,d4e4,d7c1,b4e9,d7f4,f3d0,f5a1,dff2,ecf1,ebd1,e2f4,dae8,d7f5,d5a7,f6b4,bded,c4b6,b4d7,e0dc,dae2,',
-);
-
-sub han2pinyin {
-	my (@han, @pinyin);
-	if (scalar @_ == 1) {
-		my $han = shift;
-		if (length($han) == 2) { return _han2pinyin($han); }
-		else { @han = ($han =~ /([\xa1-\xfe]{2})/g); }
+sub new {
+	my $class = shift;
+	my $dir = __FILE__; $dir =~ s/\.pm//o;
+	-d $dir or die "Directory $dir nonexistent!";
+	my $self = { '_dir_' => $dir, @_ };
+	unless ($self->{'format'}) { $self->{'format'} = 'gb2312'; }
+	my %py;
+	my $file = $self->{'_dir_'} . "/PinYin_" . $self->{'format'} . ".txt";
+	open(FH, $file)	or die "$file: $!";
+	while(<FH>) {
+		my ($uni, $py) = split(/\s+/);
+		$py{$uni} = $py;
 	}
-	else { @han = @_; }
-	foreach (@han) {
-		push(@pinyin, _han2pinyin($_));
-	}
-	return wantarray ? @pinyin : "@pinyin";
+	close(FH);
+	$self->{'py'} = \%py;
+	return bless $self => $class;
 }
 
-sub _han2pinyin {
-	my $han = shift;
-	$han = unpack("H*",$han);
-	foreach (sort keys %py) {
-		next if ($py{$_} !~ /\,$han\,/);
-		return $_;
+sub han2pinyin {
+	my ($self, $hanzi) = @_;
+	my $uni = unpack("H*",$hanzi);
+	if (exists $self->{'py'}->{$uni}) {
+		return $self->{'py'}->{$uni};
+	} else {
+		return 'XX';
 	}
-	return 'XX';
 }
 
 1;
@@ -514,29 +37,23 @@ __END__
 
 =head1 NAME
 
-Lingua::Han2PinYin - convert Chinese character to its pinyin.
+Lingua::Han2PinYin - convert Chinese character(Mandarin) to its pinyin.
 
 =head1 SYNOPSIS
 
   use Lingua::Han2PinYin;
   
-  my $hanzi = "ÎÒ"; # the Chinese character
-  my $pinyin = han2pinyin($hanzi); # the corresponding spell
-  #now $pinyin is 'wo';
-  my $juzi = "ÎÒÊÇÖÐ¹úÈË";
-  my $juzi_pinyin = han2pinyin($juzi);
-  #now $juzi_pinyin is 'wo shi zhong guo ren');
-  my @juzi = qq/ÎÒ ÊÇ ÖÐ ¹ú ÈË/;
-  my @pinyin = han2pinyin(@juzi);
-  #now @pinyin is ('wo', 'shi', 'zhong', 'guo', 'ren')
+  # if the format of your script is gb2312, default
+  my $h2p = new Lingua::Han2PinYin();
+  print $h2p->han2pinyin("æˆ‘");
+  
+  # if the format of your script is utf-8
+  my $h2p = new Lingua::Han2PinYin(format => 'utf8');
+  print $h2p->han2pinyin("æˆ‘");
 
 =head1 DESCRIPTION
 
 There is a Chinese document @ L<http://www.1313s.com/f/Han2PinYin.html>. It tells why and how I write this module.
-
-This heavy version can deal with 27805 characters and 475 pinyin. 
-
-Feel free to add new characters and send me messages.
 
 =head1 RESTRICTIONS
 
@@ -544,28 +61,25 @@ if the character is polyphone(DuoYinZi), we can B<NOT> point out the correct one
 
 =head1 OPTION
 
-Parameter can be scalar(one word or more) and array.
-
 =head1 RETURN VALUE
 
 if it's a common character, it returns its pinyin/spell.
 
 if not, it returns 'XX';
 
-if you wantarray, it returns array else return scalar.
-
-=head1 BUGS
-
-I'm not sure it works at all OS or different versions of perl.
-
-Follows are tested, and feel free to report any bugs or corrections:
-
-Win2000(SP4) + ActivePerl 5.8.5
-
 =head1 SEE ALSO
 
-Lingua::Han2PinYin::Light
+L<Unicode::Unihan>
 
 =head1 AUTHOR
 
 Fayland, fayland@gmail.com
+
+=head1 COPYRIGHT
+
+Copyright (c) 2005 Fayland All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
