@@ -1,6 +1,6 @@
 Build.PL
 lib/Lingua/Han2PinYin.pm
-Lingua-Han2PinYin-0.01.tar.gz
+lib/Lingua/Han2PinYin/Light.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml

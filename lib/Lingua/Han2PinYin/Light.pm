@@ -1,9 +1,9 @@
-package Lingua::Han2PinYin;
+package Lingua::Han2PinYin::Light;
 
 use strict;
 use vars qw($VERSION @ISA @EXPORT);
 use Exporter;
-$VERSION = '0.03';
+$VERSION = '0.01';
 @ISA = qw(Exporter);
 @EXPORT = qw(han2pinyin);
 
@@ -435,11 +435,11 @@ __END__
 
 =head1 NAME
 
-Lingua::Han2PinYin - convert Chinese character to its pinyin.
+Lingua::Han2PinYin::Light - convert Chinese character to its pinyin.
 
 =head1 SYNOPSIS
 
-  use Lingua::Han2PinYin;
+  use Lingua::Han2PinYin::Light;
   
   my $hanzi = "Œ“"; # the Chinese character
   my $pinyin = han2pinyin($hanzi); # the corresponding spell
@@ -455,7 +455,7 @@ Lingua::Han2PinYin - convert Chinese character to its pinyin.
 
 There is a Chinese document @ L<http://www.1313s.com/f/Han2PinYin.html>. It tells why and how I write this module.
 
-Now this the same as Lingua::Han2PinYin::Light, but later, it'll deal with more than 20000 characters.
+It's a light version, can only deal with 3660 characters.
 
 =head1 RESTRICTIONS
 

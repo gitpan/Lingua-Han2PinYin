@@ -1,13 +1,15 @@
 --- #YAML:1.0
 name: Lingua-Han2PinYin
-version: 0.02
+version: 0.03
 author:
   - Fayland, fayland@gmail.com
-abstract: |-
-  convert Chinese character to its pinyin(phoneticize, spell).
+abstract: convert Chinese character to its pinyin.
 license: perl
 provides:
   Lingua::Han2PinYin:
     file: lib/Lingua/Han2PinYin.pm
-    version: 0.02
+    version: 0.03
+  Lingua::Han2PinYin::Light:
+    file: lib/Lingua/Han2PinYin/Light.pm
+    version: 0.01
 generated_by: Module::Build version 0.2606
